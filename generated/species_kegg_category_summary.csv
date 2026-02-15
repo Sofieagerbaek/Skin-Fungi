@@ -1,0 +1,457 @@
+"species","Category","GeneCount"
+"Aspergillus_fumigatus","Amino acid metabolism",296
+"Aspergillus_fumigatus","Biosynthesis of other secondary metabolites",120
+"Aspergillus_fumigatus","Carbohydrate metabolism",396
+"Aspergillus_fumigatus","Energy metabolism",112
+"Aspergillus_fumigatus","Glycan biosynthesis and metabolism",123
+"Aspergillus_fumigatus","Lipid metabolism",199
+"Aspergillus_fumigatus","Metabolism of cofactors and vitamins",187
+"Aspergillus_fumigatus","Metabolism of other amino acids",108
+"Aspergillus_fumigatus","Metabolism of terpenoids and polyketides",43
+"Aspergillus_fumigatus","Nucleotide metabolism",136
+"Aspergillus_fumigatus","Other",794
+"Aspergillus_fumigatus","Xenobiotics biodegradation and metabolism",132
+"Candida_albicans","Amino acid metabolism",174
+"Candida_albicans","Biosynthesis of other secondary metabolites",55
+"Candida_albicans","Carbohydrate metabolism",238
+"Candida_albicans","Energy metabolism",100
+"Candida_albicans","Glycan biosynthesis and metabolism",68
+"Candida_albicans","Lipid metabolism",135
+"Candida_albicans","Metabolism of cofactors and vitamins",149
+"Candida_albicans","Metabolism of other amino acids",74
+"Candida_albicans","Metabolism of terpenoids and polyketides",31
+"Candida_albicans","Nucleotide metabolism",128
+"Candida_albicans","Other",629
+"Candida_albicans","Xenobiotics biodegradation and metabolism",60
+"Candida_dubliniensis","Amino acid metabolism",455
+"Candida_dubliniensis","Biosynthesis of other secondary metabolites",140
+"Candida_dubliniensis","Carbohydrate metabolism",584
+"Candida_dubliniensis","Energy metabolism",217
+"Candida_dubliniensis","Glycan biosynthesis and metabolism",171
+"Candida_dubliniensis","Lipid metabolism",339
+"Candida_dubliniensis","Metabolism of cofactors and vitamins",371
+"Candida_dubliniensis","Metabolism of other amino acids",203
+"Candida_dubliniensis","Metabolism of terpenoids and polyketides",79
+"Candida_dubliniensis","Nucleotide metabolism",339
+"Candida_dubliniensis","Other",1465
+"Candida_dubliniensis","Xenobiotics biodegradation and metabolism",152
+"Candida_metapsilosis","Amino acid metabolism",192
+"Candida_metapsilosis","Biosynthesis of other secondary metabolites",53
+"Candida_metapsilosis","Carbohydrate metabolism",239
+"Candida_metapsilosis","Energy metabolism",95
+"Candida_metapsilosis","Glycan biosynthesis and metabolism",72
+"Candida_metapsilosis","Lipid metabolism",167
+"Candida_metapsilosis","Metabolism of cofactors and vitamins",156
+"Candida_metapsilosis","Metabolism of other amino acids",79
+"Candida_metapsilosis","Metabolism of terpenoids and polyketides",32
+"Candida_metapsilosis","Nucleotide metabolism",134
+"Candida_metapsilosis","Other",680
+"Candida_metapsilosis","Xenobiotics biodegradation and metabolism",78
+"Candida_orthopsilosis","Amino acid metabolism",180
+"Candida_orthopsilosis","Biosynthesis of other secondary metabolites",55
+"Candida_orthopsilosis","Carbohydrate metabolism",231
+"Candida_orthopsilosis","Energy metabolism",101
+"Candida_orthopsilosis","Glycan biosynthesis and metabolism",65
+"Candida_orthopsilosis","Lipid metabolism",162
+"Candida_orthopsilosis","Metabolism of cofactors and vitamins",150
+"Candida_orthopsilosis","Metabolism of other amino acids",77
+"Candida_orthopsilosis","Metabolism of terpenoids and polyketides",32
+"Candida_orthopsilosis","Nucleotide metabolism",131
+"Candida_orthopsilosis","Other",664
+"Candida_orthopsilosis","Xenobiotics biodegradation and metabolism",66
+"Candida_parapsilosis","Amino acid metabolism",338
+"Candida_parapsilosis","Biosynthesis of other secondary metabolites",98
+"Candida_parapsilosis","Carbohydrate metabolism",420
+"Candida_parapsilosis","Energy metabolism",155
+"Candida_parapsilosis","Glycan biosynthesis and metabolism",125
+"Candida_parapsilosis","Lipid metabolism",275
+"Candida_parapsilosis","Metabolism of cofactors and vitamins",269
+"Candida_parapsilosis","Metabolism of other amino acids",152
+"Candida_parapsilosis","Metabolism of terpenoids and polyketides",56
+"Candida_parapsilosis","Nucleotide metabolism",247
+"Candida_parapsilosis","Other",1093
+"Candida_parapsilosis","Xenobiotics biodegradation and metabolism",124
+"Candida_tropicalis","Amino acid metabolism",180
+"Candida_tropicalis","Biosynthesis of other secondary metabolites",57
+"Candida_tropicalis","Carbohydrate metabolism",249
+"Candida_tropicalis","Energy metabolism",98
+"Candida_tropicalis","Glycan biosynthesis and metabolism",68
+"Candida_tropicalis","Lipid metabolism",146
+"Candida_tropicalis","Metabolism of cofactors and vitamins",164
+"Candida_tropicalis","Metabolism of other amino acids",77
+"Candida_tropicalis","Metabolism of terpenoids and polyketides",31
+"Candida_tropicalis","Nucleotide metabolism",134
+"Candida_tropicalis","Other",674
+"Candida_tropicalis","Xenobiotics biodegradation and metabolism",60
+"Chrysosporium_queenslandicum","Amino acid metabolism",521
+"Chrysosporium_queenslandicum","Biosynthesis of other secondary metabolites",146
+"Chrysosporium_queenslandicum","Carbohydrate metabolism",511
+"Chrysosporium_queenslandicum","Energy metabolism",256
+"Chrysosporium_queenslandicum","Glycan biosynthesis and metabolism",149
+"Chrysosporium_queenslandicum","Lipid metabolism",239
+"Chrysosporium_queenslandicum","Metabolism of cofactors and vitamins",340
+"Chrysosporium_queenslandicum","Metabolism of other amino acids",188
+"Chrysosporium_queenslandicum","Metabolism of terpenoids and polyketides",91
+"Chrysosporium_queenslandicum","Nucleotide metabolism",231
+"Chrysosporium_queenslandicum","Other",1125
+"Chrysosporium_queenslandicum","Xenobiotics biodegradation and metabolism",195
+"Cryptococcus_neoformans","Amino acid metabolism",184
+"Cryptococcus_neoformans","Biosynthesis of other secondary metabolites",54
+"Cryptococcus_neoformans","Carbohydrate metabolism",225
+"Cryptococcus_neoformans","Energy metabolism",79
+"Cryptococcus_neoformans","Glycan biosynthesis and metabolism",67
+"Cryptococcus_neoformans","Lipid metabolism",107
+"Cryptococcus_neoformans","Metabolism of cofactors and vitamins",125
+"Cryptococcus_neoformans","Metabolism of other amino acids",68
+"Cryptococcus_neoformans","Metabolism of terpenoids and polyketides",30
+"Cryptococcus_neoformans","Nucleotide metabolism",113
+"Cryptococcus_neoformans","Other",572
+"Cryptococcus_neoformans","Xenobiotics biodegradation and metabolism",52
+"Epidermophyton_floccosum","Amino acid metabolism",623
+"Epidermophyton_floccosum","Biosynthesis of other secondary metabolites",163
+"Epidermophyton_floccosum","Carbohydrate metabolism",721
+"Epidermophyton_floccosum","Energy metabolism",245
+"Epidermophyton_floccosum","Glycan biosynthesis and metabolism",250
+"Epidermophyton_floccosum","Lipid metabolism",388
+"Epidermophyton_floccosum","Metabolism of cofactors and vitamins",466
+"Epidermophyton_floccosum","Metabolism of other amino acids",223
+"Epidermophyton_floccosum","Metabolism of terpenoids and polyketides",114
+"Epidermophyton_floccosum","Nucleotide metabolism",382
+"Epidermophyton_floccosum","Other",1761
+"Epidermophyton_floccosum","Xenobiotics biodegradation and metabolism",226
+"Histoplasma_capsulatum","Amino acid metabolism",224
+"Histoplasma_capsulatum","Biosynthesis of other secondary metabolites",61
+"Histoplasma_capsulatum","Carbohydrate metabolism",240
+"Histoplasma_capsulatum","Energy metabolism",88
+"Histoplasma_capsulatum","Glycan biosynthesis and metabolism",79
+"Histoplasma_capsulatum","Lipid metabolism",136
+"Histoplasma_capsulatum","Metabolism of cofactors and vitamins",149
+"Histoplasma_capsulatum","Metabolism of other amino acids",77
+"Histoplasma_capsulatum","Metabolism of terpenoids and polyketides",35
+"Histoplasma_capsulatum","Nucleotide metabolism",138
+"Histoplasma_capsulatum","Other",690
+"Histoplasma_capsulatum","Xenobiotics biodegradation and metabolism",75
+"Hortaea_werneckii","Amino acid metabolism",1241
+"Hortaea_werneckii","Biosynthesis of other secondary metabolites",403
+"Hortaea_werneckii","Carbohydrate metabolism",1614
+"Hortaea_werneckii","Energy metabolism",486
+"Hortaea_werneckii","Glycan biosynthesis and metabolism",463
+"Hortaea_werneckii","Lipid metabolism",806
+"Hortaea_werneckii","Metabolism of cofactors and vitamins",809
+"Hortaea_werneckii","Metabolism of other amino acids",461
+"Hortaea_werneckii","Metabolism of terpenoids and polyketides",166
+"Hortaea_werneckii","Nucleotide metabolism",631
+"Hortaea_werneckii","Other",3105
+"Hortaea_werneckii","Xenobiotics biodegradation and metabolism",548
+"Malassezia_dermatis","Amino acid metabolism",121
+"Malassezia_dermatis","Biosynthesis of other secondary metabolites",30
+"Malassezia_dermatis","Carbohydrate metabolism",153
+"Malassezia_dermatis","Energy metabolism",61
+"Malassezia_dermatis","Glycan biosynthesis and metabolism",41
+"Malassezia_dermatis","Lipid metabolism",75
+"Malassezia_dermatis","Metabolism of cofactors and vitamins",100
+"Malassezia_dermatis","Metabolism of other amino acids",43
+"Malassezia_dermatis","Metabolism of terpenoids and polyketides",19
+"Malassezia_dermatis","Nucleotide metabolism",90
+"Malassezia_dermatis","Other",443
+"Malassezia_dermatis","Xenobiotics biodegradation and metabolism",27
+"Malassezia_equina","Amino acid metabolism",117
+"Malassezia_equina","Biosynthesis of other secondary metabolites",32
+"Malassezia_equina","Carbohydrate metabolism",158
+"Malassezia_equina","Energy metabolism",60
+"Malassezia_equina","Glycan biosynthesis and metabolism",44
+"Malassezia_equina","Lipid metabolism",76
+"Malassezia_equina","Metabolism of cofactors and vitamins",109
+"Malassezia_equina","Metabolism of other amino acids",41
+"Malassezia_equina","Metabolism of terpenoids and polyketides",19
+"Malassezia_equina","Nucleotide metabolism",99
+"Malassezia_equina","Other",467
+"Malassezia_equina","Xenobiotics biodegradation and metabolism",29
+"Malassezia_furfur","Amino acid metabolism",518
+"Malassezia_furfur","Biosynthesis of other secondary metabolites",150
+"Malassezia_furfur","Carbohydrate metabolism",691
+"Malassezia_furfur","Energy metabolism",258
+"Malassezia_furfur","Glycan biosynthesis and metabolism",217
+"Malassezia_furfur","Lipid metabolism",340
+"Malassezia_furfur","Metabolism of cofactors and vitamins",454
+"Malassezia_furfur","Metabolism of other amino acids",201
+"Malassezia_furfur","Metabolism of terpenoids and polyketides",95
+"Malassezia_furfur","Nucleotide metabolism",431
+"Malassezia_furfur","Other",1853
+"Malassezia_furfur","Xenobiotics biodegradation and metabolism",129
+"Malassezia_globosa","Amino acid metabolism",331
+"Malassezia_globosa","Biosynthesis of other secondary metabolites",95
+"Malassezia_globosa","Carbohydrate metabolism",446
+"Malassezia_globosa","Energy metabolism",152
+"Malassezia_globosa","Glycan biosynthesis and metabolism",130
+"Malassezia_globosa","Lipid metabolism",247
+"Malassezia_globosa","Metabolism of cofactors and vitamins",306
+"Malassezia_globosa","Metabolism of other amino acids",127
+"Malassezia_globosa","Metabolism of terpenoids and polyketides",62
+"Malassezia_globosa","Nucleotide metabolism",274
+"Malassezia_globosa","Other",1219
+"Malassezia_globosa","Xenobiotics biodegradation and metabolism",84
+"Malassezia_pachydermatis","Amino acid metabolism",132
+"Malassezia_pachydermatis","Biosynthesis of other secondary metabolites",40
+"Malassezia_pachydermatis","Carbohydrate metabolism",167
+"Malassezia_pachydermatis","Energy metabolism",61
+"Malassezia_pachydermatis","Glycan biosynthesis and metabolism",47
+"Malassezia_pachydermatis","Lipid metabolism",85
+"Malassezia_pachydermatis","Metabolism of cofactors and vitamins",119
+"Malassezia_pachydermatis","Metabolism of other amino acids",49
+"Malassezia_pachydermatis","Metabolism of terpenoids and polyketides",21
+"Malassezia_pachydermatis","Nucleotide metabolism",101
+"Malassezia_pachydermatis","Other",494
+"Malassezia_pachydermatis","Xenobiotics biodegradation and metabolism",38
+"Malassezia_restricta","Amino acid metabolism",213
+"Malassezia_restricta","Biosynthesis of other secondary metabolites",62
+"Malassezia_restricta","Carbohydrate metabolism",295
+"Malassezia_restricta","Energy metabolism",104
+"Malassezia_restricta","Glycan biosynthesis and metabolism",87
+"Malassezia_restricta","Lipid metabolism",161
+"Malassezia_restricta","Metabolism of cofactors and vitamins",215
+"Malassezia_restricta","Metabolism of other amino acids",81
+"Malassezia_restricta","Metabolism of terpenoids and polyketides",39
+"Malassezia_restricta","Nucleotide metabolism",190
+"Malassezia_restricta","Other",824
+"Malassezia_restricta","Xenobiotics biodegradation and metabolism",54
+"Malassezia_sympodialis","Amino acid metabolism",122
+"Malassezia_sympodialis","Biosynthesis of other secondary metabolites",33
+"Malassezia_sympodialis","Carbohydrate metabolism",162
+"Malassezia_sympodialis","Energy metabolism",61
+"Malassezia_sympodialis","Glycan biosynthesis and metabolism",43
+"Malassezia_sympodialis","Lipid metabolism",74
+"Malassezia_sympodialis","Metabolism of cofactors and vitamins",100
+"Malassezia_sympodialis","Metabolism of other amino acids",43
+"Malassezia_sympodialis","Metabolism of terpenoids and polyketides",19
+"Malassezia_sympodialis","Nucleotide metabolism",95
+"Malassezia_sympodialis","Other",467
+"Malassezia_sympodialis","Xenobiotics biodegradation and metabolism",28
+"Microsporum_audouinii","Amino acid metabolism",445
+"Microsporum_audouinii","Biosynthesis of other secondary metabolites",125
+"Microsporum_audouinii","Carbohydrate metabolism",494
+"Microsporum_audouinii","Energy metabolism",164
+"Microsporum_audouinii","Glycan biosynthesis and metabolism",190
+"Microsporum_audouinii","Lipid metabolism",278
+"Microsporum_audouinii","Metabolism of cofactors and vitamins",331
+"Microsporum_audouinii","Metabolism of other amino acids",151
+"Microsporum_audouinii","Metabolism of terpenoids and polyketides",77
+"Microsporum_audouinii","Nucleotide metabolism",257
+"Microsporum_audouinii","Other",1286
+"Microsporum_audouinii","Xenobiotics biodegradation and metabolism",153
+"Microsporum_canis","Amino acid metabolism",653
+"Microsporum_canis","Biosynthesis of other secondary metabolites",190
+"Microsporum_canis","Carbohydrate metabolism",723
+"Microsporum_canis","Energy metabolism",250
+"Microsporum_canis","Glycan biosynthesis and metabolism",283
+"Microsporum_canis","Lipid metabolism",399
+"Microsporum_canis","Metabolism of cofactors and vitamins",480
+"Microsporum_canis","Metabolism of other amino acids",221
+"Microsporum_canis","Metabolism of terpenoids and polyketides",111
+"Microsporum_canis","Nucleotide metabolism",380
+"Microsporum_canis","Other",1834
+"Microsporum_canis","Xenobiotics biodegradation and metabolism",218
+"Microsporum_ferrugineum","Amino acid metabolism",450
+"Microsporum_ferrugineum","Biosynthesis of other secondary metabolites",128
+"Microsporum_ferrugineum","Carbohydrate metabolism",504
+"Microsporum_ferrugineum","Energy metabolism",168
+"Microsporum_ferrugineum","Glycan biosynthesis and metabolism",192
+"Microsporum_ferrugineum","Lipid metabolism",272
+"Microsporum_ferrugineum","Metabolism of cofactors and vitamins",330
+"Microsporum_ferrugineum","Metabolism of other amino acids",148
+"Microsporum_ferrugineum","Metabolism of terpenoids and polyketides",80
+"Microsporum_ferrugineum","Nucleotide metabolism",257
+"Microsporum_ferrugineum","Other",1291
+"Microsporum_ferrugineum","Xenobiotics biodegradation and metabolism",158
+"Nakaseomyces_glabratus","Amino acid metabolism",388
+"Nakaseomyces_glabratus","Biosynthesis of other secondary metabolites",119
+"Nakaseomyces_glabratus","Carbohydrate metabolism",554
+"Nakaseomyces_glabratus","Energy metabolism",214
+"Nakaseomyces_glabratus","Glycan biosynthesis and metabolism",197
+"Nakaseomyces_glabratus","Lipid metabolism",281
+"Nakaseomyces_glabratus","Metabolism of cofactors and vitamins",357
+"Nakaseomyces_glabratus","Metabolism of other amino acids",150
+"Nakaseomyces_glabratus","Metabolism of terpenoids and polyketides",72
+"Nakaseomyces_glabratus","Nucleotide metabolism",398
+"Nakaseomyces_glabratus","Other",1452
+"Nakaseomyces_glabratus","Xenobiotics biodegradation and metabolism",79
+"Nannizzia_gypsea","Amino acid metabolism",215
+"Nannizzia_gypsea","Biosynthesis of other secondary metabolites",55
+"Nannizzia_gypsea","Carbohydrate metabolism",247
+"Nannizzia_gypsea","Energy metabolism",82
+"Nannizzia_gypsea","Glycan biosynthesis and metabolism",85
+"Nannizzia_gypsea","Lipid metabolism",129
+"Nannizzia_gypsea","Metabolism of cofactors and vitamins",168
+"Nannizzia_gypsea","Metabolism of other amino acids",74
+"Nannizzia_gypsea","Metabolism of terpenoids and polyketides",33
+"Nannizzia_gypsea","Nucleotide metabolism",126
+"Nannizzia_gypsea","Other",636
+"Nannizzia_gypsea","Xenobiotics biodegradation and metabolism",74
+"Pichia_kudriavzevii","Amino acid metabolism",181
+"Pichia_kudriavzevii","Biosynthesis of other secondary metabolites",47
+"Pichia_kudriavzevii","Carbohydrate metabolism",213
+"Pichia_kudriavzevii","Energy metabolism",81
+"Pichia_kudriavzevii","Glycan biosynthesis and metabolism",68
+"Pichia_kudriavzevii","Lipid metabolism",111
+"Pichia_kudriavzevii","Metabolism of cofactors and vitamins",148
+"Pichia_kudriavzevii","Metabolism of other amino acids",68
+"Pichia_kudriavzevii","Metabolism of terpenoids and polyketides",28
+"Pichia_kudriavzevii","Nucleotide metabolism",143
+"Pichia_kudriavzevii","Other",567
+"Pichia_kudriavzevii","Xenobiotics biodegradation and metabolism",41
+"Rhodotorula_toruloides","Amino acid metabolism",208
+"Rhodotorula_toruloides","Biosynthesis of other secondary metabolites",59
+"Rhodotorula_toruloides","Carbohydrate metabolism",237
+"Rhodotorula_toruloides","Energy metabolism",78
+"Rhodotorula_toruloides","Glycan biosynthesis and metabolism",79
+"Rhodotorula_toruloides","Lipid metabolism",131
+"Rhodotorula_toruloides","Metabolism of cofactors and vitamins",159
+"Rhodotorula_toruloides","Metabolism of other amino acids",83
+"Rhodotorula_toruloides","Metabolism of terpenoids and polyketides",35
+"Rhodotorula_toruloides","Nucleotide metabolism",145
+"Rhodotorula_toruloides","Other",689
+"Rhodotorula_toruloides","Xenobiotics biodegradation and metabolism",84
+"Saccharomyces_cerevisiae","Amino acid metabolism",162
+"Saccharomyces_cerevisiae","Biosynthesis of other secondary metabolites",44
+"Saccharomyces_cerevisiae","Carbohydrate metabolism",239
+"Saccharomyces_cerevisiae","Energy metabolism",94
+"Saccharomyces_cerevisiae","Glycan biosynthesis and metabolism",68
+"Saccharomyces_cerevisiae","Lipid metabolism",101
+"Saccharomyces_cerevisiae","Metabolism of cofactors and vitamins",143
+"Saccharomyces_cerevisiae","Metabolism of other amino acids",58
+"Saccharomyces_cerevisiae","Metabolism of terpenoids and polyketides",29
+"Saccharomyces_cerevisiae","Nucleotide metabolism",146
+"Saccharomyces_cerevisiae","Other",604
+"Saccharomyces_cerevisiae","Xenobiotics biodegradation and metabolism",37
+"Trichophyton_concentricum","Amino acid metabolism",436
+"Trichophyton_concentricum","Biosynthesis of other secondary metabolites",126
+"Trichophyton_concentricum","Carbohydrate metabolism",494
+"Trichophyton_concentricum","Energy metabolism",165
+"Trichophyton_concentricum","Glycan biosynthesis and metabolism",169
+"Trichophyton_concentricum","Lipid metabolism",264
+"Trichophyton_concentricum","Metabolism of cofactors and vitamins",322
+"Trichophyton_concentricum","Metabolism of other amino acids",149
+"Trichophyton_concentricum","Metabolism of terpenoids and polyketides",69
+"Trichophyton_concentricum","Nucleotide metabolism",267
+"Trichophyton_concentricum","Other",1255
+"Trichophyton_concentricum","Xenobiotics biodegradation and metabolism",149
+"Trichophyton_indotineae","Amino acid metabolism",222
+"Trichophyton_indotineae","Biosynthesis of other secondary metabolites",62
+"Trichophyton_indotineae","Carbohydrate metabolism",251
+"Trichophyton_indotineae","Energy metabolism",86
+"Trichophyton_indotineae","Glycan biosynthesis and metabolism",83
+"Trichophyton_indotineae","Lipid metabolism",136
+"Trichophyton_indotineae","Metabolism of cofactors and vitamins",162
+"Trichophyton_indotineae","Metabolism of other amino acids",78
+"Trichophyton_indotineae","Metabolism of terpenoids and polyketides",39
+"Trichophyton_indotineae","Nucleotide metabolism",131
+"Trichophyton_indotineae","Other",676
+"Trichophyton_indotineae","Xenobiotics biodegradation and metabolism",76
+"Trichophyton_interdigitale","Amino acid metabolism",221
+"Trichophyton_interdigitale","Biosynthesis of other secondary metabolites",63
+"Trichophyton_interdigitale","Carbohydrate metabolism",248
+"Trichophyton_interdigitale","Energy metabolism",85
+"Trichophyton_interdigitale","Glycan biosynthesis and metabolism",81
+"Trichophyton_interdigitale","Lipid metabolism",136
+"Trichophyton_interdigitale","Metabolism of cofactors and vitamins",160
+"Trichophyton_interdigitale","Metabolism of other amino acids",78
+"Trichophyton_interdigitale","Metabolism of terpenoids and polyketides",38
+"Trichophyton_interdigitale","Nucleotide metabolism",131
+"Trichophyton_interdigitale","Other",671
+"Trichophyton_interdigitale","Xenobiotics biodegradation and metabolism",74
+"Trichophyton_kuryangei","Amino acid metabolism",218
+"Trichophyton_kuryangei","Biosynthesis of other secondary metabolites",63
+"Trichophyton_kuryangei","Carbohydrate metabolism",247
+"Trichophyton_kuryangei","Energy metabolism",84
+"Trichophyton_kuryangei","Glycan biosynthesis and metabolism",81
+"Trichophyton_kuryangei","Lipid metabolism",137
+"Trichophyton_kuryangei","Metabolism of cofactors and vitamins",156
+"Trichophyton_kuryangei","Metabolism of other amino acids",74
+"Trichophyton_kuryangei","Metabolism of terpenoids and polyketides",38
+"Trichophyton_kuryangei","Nucleotide metabolism",130
+"Trichophyton_kuryangei","Other",666
+"Trichophyton_kuryangei","Xenobiotics biodegradation and metabolism",71
+"Trichophyton_mentagrophytes","Amino acid metabolism",423
+"Trichophyton_mentagrophytes","Biosynthesis of other secondary metabolites",122
+"Trichophyton_mentagrophytes","Carbohydrate metabolism",490
+"Trichophyton_mentagrophytes","Energy metabolism",164
+"Trichophyton_mentagrophytes","Glycan biosynthesis and metabolism",162
+"Trichophyton_mentagrophytes","Lipid metabolism",262
+"Trichophyton_mentagrophytes","Metabolism of cofactors and vitamins",313
+"Trichophyton_mentagrophytes","Metabolism of other amino acids",155
+"Trichophyton_mentagrophytes","Metabolism of terpenoids and polyketides",76
+"Trichophyton_mentagrophytes","Nucleotide metabolism",263
+"Trichophyton_mentagrophytes","Other",1207
+"Trichophyton_mentagrophytes","Xenobiotics biodegradation and metabolism",148
+"Trichophyton_rubrum","Amino acid metabolism",832
+"Trichophyton_rubrum","Biosynthesis of other secondary metabolites",239
+"Trichophyton_rubrum","Carbohydrate metabolism",925
+"Trichophyton_rubrum","Energy metabolism",320
+"Trichophyton_rubrum","Glycan biosynthesis and metabolism",327
+"Trichophyton_rubrum","Lipid metabolism",511
+"Trichophyton_rubrum","Metabolism of cofactors and vitamins",601
+"Trichophyton_rubrum","Metabolism of other amino acids",293
+"Trichophyton_rubrum","Metabolism of terpenoids and polyketides",142
+"Trichophyton_rubrum","Nucleotide metabolism",505
+"Trichophyton_rubrum","Other",2204
+"Trichophyton_rubrum","Xenobiotics biodegradation and metabolism",282
+"Trichophyton_schoenleinii","Amino acid metabolism",431
+"Trichophyton_schoenleinii","Biosynthesis of other secondary metabolites",123
+"Trichophyton_schoenleinii","Carbohydrate metabolism",483
+"Trichophyton_schoenleinii","Energy metabolism",169
+"Trichophyton_schoenleinii","Glycan biosynthesis and metabolism",173
+"Trichophyton_schoenleinii","Lipid metabolism",260
+"Trichophyton_schoenleinii","Metabolism of cofactors and vitamins",311
+"Trichophyton_schoenleinii","Metabolism of other amino acids",147
+"Trichophyton_schoenleinii","Metabolism of terpenoids and polyketides",69
+"Trichophyton_schoenleinii","Nucleotide metabolism",250
+"Trichophyton_schoenleinii","Other",1205
+"Trichophyton_schoenleinii","Xenobiotics biodegradation and metabolism",146
+"Trichophyton_soudanese","Amino acid metabolism",219
+"Trichophyton_soudanese","Biosynthesis of other secondary metabolites",64
+"Trichophyton_soudanese","Carbohydrate metabolism",249
+"Trichophyton_soudanese","Energy metabolism",84
+"Trichophyton_soudanese","Glycan biosynthesis and metabolism",82
+"Trichophyton_soudanese","Lipid metabolism",137
+"Trichophyton_soudanese","Metabolism of cofactors and vitamins",156
+"Trichophyton_soudanese","Metabolism of other amino acids",76
+"Trichophyton_soudanese","Metabolism of terpenoids and polyketides",39
+"Trichophyton_soudanese","Nucleotide metabolism",128
+"Trichophyton_soudanese","Other",665
+"Trichophyton_soudanese","Xenobiotics biodegradation and metabolism",70
+"Trichophyton_tonsurans","Amino acid metabolism",617
+"Trichophyton_tonsurans","Biosynthesis of other secondary metabolites",183
+"Trichophyton_tonsurans","Carbohydrate metabolism",712
+"Trichophyton_tonsurans","Energy metabolism",243
+"Trichophyton_tonsurans","Glycan biosynthesis and metabolism",251
+"Trichophyton_tonsurans","Lipid metabolism",389
+"Trichophyton_tonsurans","Metabolism of cofactors and vitamins",463
+"Trichophyton_tonsurans","Metabolism of other amino acids",222
+"Trichophyton_tonsurans","Metabolism of terpenoids and polyketides",111
+"Trichophyton_tonsurans","Nucleotide metabolism",397
+"Trichophyton_tonsurans","Other",1737
+"Trichophyton_tonsurans","Xenobiotics biodegradation and metabolism",216
+"Trichophyton_violaceum","Amino acid metabolism",219
+"Trichophyton_violaceum","Biosynthesis of other secondary metabolites",62
+"Trichophyton_violaceum","Carbohydrate metabolism",242
+"Trichophyton_violaceum","Energy metabolism",82
+"Trichophyton_violaceum","Glycan biosynthesis and metabolism",84
+"Trichophyton_violaceum","Lipid metabolism",130
+"Trichophyton_violaceum","Metabolism of cofactors and vitamins",150
+"Trichophyton_violaceum","Metabolism of other amino acids",74
+"Trichophyton_violaceum","Metabolism of terpenoids and polyketides",35
+"Trichophyton_violaceum","Nucleotide metabolism",129
+"Trichophyton_violaceum","Other",630
+"Trichophyton_violaceum","Xenobiotics biodegradation and metabolism",71
+"Trichosporon_ovoides","Amino acid metabolism",811
+"Trichosporon_ovoides","Biosynthesis of other secondary metabolites",194
+"Trichosporon_ovoides","Carbohydrate metabolism",936
+"Trichosporon_ovoides","Energy metabolism",308
+"Trichosporon_ovoides","Glycan biosynthesis and metabolism",333
+"Trichosporon_ovoides","Lipid metabolism",526
+"Trichosporon_ovoides","Metabolism of cofactors and vitamins",548
+"Trichosporon_ovoides","Metabolism of other amino acids",340
+"Trichosporon_ovoides","Metabolism of terpenoids and polyketides",147
+"Trichosporon_ovoides","Nucleotide metabolism",531
+"Trichosporon_ovoides","Other",2257
+"Trichosporon_ovoides","Xenobiotics biodegradation and metabolism",347

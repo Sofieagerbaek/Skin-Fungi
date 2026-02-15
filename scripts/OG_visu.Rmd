@@ -1,0 +1,542 @@
+---
+title: "Orthogroup visualisation - overview statistics"
+author: "Sofie Agerbæk"
+date: "2025-10-13"
+output: html_document
+---
+
+```{r, include=FALSE}
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(plotly)
+library(RColorBrewer)
+library(heatmaply)
+library(writexl)
+library(Polychrome)
+library(ComplexUpset)
+```
+
+
+```{r, include=FALSE}
+library(cowplot)
+options(digits = 3)        # number of digits printed by R default (vectors, data.frames, lists)
+options(pillar.sigfig = 3) # number of digits printed by tibbles default.
+options(width = 200)
+
+text_base_size   <- 9 # in pt
+fig.witdh        <- 180  # in mm
+fig.height       <- 125  # in mm
+
+# Set all text in plots to same size
+theme_set(theme_cowplot(font_size = 10, rel_small = 1, rel_tiny = 1, rel_large = 1))
+theme_update(panel.grid.major = element_line(colour="gray85"), panel.grid.minor = element_line(colour="gray95", linetype = 7))
+# Setting output sizes for plots
+knitr::opts_chunk$set(fig.width = fig.witdh/25.4)
+knitr::opts_chunk$set(fig.height = fig.height/25.4)
+knitr::opts_chunk$set(dpi = 108) # You need to find your monitors dpi yourself.
+
+# Setting text size inside plots (geom_text, geom_label etc.)
+ggplot_text_size <- text_base_size / ggplot2::.pt
+# Now use: geom_text(..., size = ggplot_text_size)
+
+
+options(ggplot2.continuous.fill  = scale_fill_viridis_c)
+options(ggplot2.discrete.fill    = c("slategray2", "#404e67","#809bce","#9887D9" ,"#9C5BA2", "#DB9FF6",  "#d1625c", "#ffd6a5", "#e89c81"))
+options(ggplot2.continuous.colour = scale_colour_viridis_c)
+options(ggplot2.discrete.colour   = c("slategray2","#404e67", "#809bce","#9C5BA2","#9887D9",  "#d1625c", "#ffd6a5", "#e89c81"))
+
+#A good palette for many distinct colours:
+#dist_palette25 <- c("#86A3D8", "#F4C283", "#856697","#AA7A86", "#ACA9CD", "#EF6E77", "#DD9983", "#B016FC", "#E1C753", "#9D2E98", "#AEB951", "#4D85FB", "#D768D2",  "#6C947E", "#B04F76","#968FED", "#B04FB7",  "#312464", "#A03C18","#FB66AD", "#912EC5",  "#381CC9",  "#ED9552", "#A0A373", "#BC3D63")
+
+pall1 <- c("#242D3B", "#404e67", "#809bce","#89B2E7", "#7fa9a7", "#7eb77f", "#a8cea9", "#d3ecc4", "#ecffc3", "#d5da97","#AA9F40", "#A27E31","#de8f49", "#D67238", "#C8461E", "#9B2603", "#420602", "#802F2F", "#C88080","#E694BC","#CE70B6" , "#9C5BA2", "#7442A3",  "#9887d0", "#6c6b9c", "#443654")
+
+#pall1_light <- c("#6585BD", "#76A1F1","#9DC8FF", "#A3E1EF", "#96FBEA", "#8AD1B6", "#7DCF7E", "#B0EE86", "#ecffc3", "#d5da97","#E9F466","#DBD40F", "#AA9F40", "#A27E31", "#D67238","#de8f49", "#FF8A67", "#FF7066", "#E44242", "#D66161", "#C88080","#d2698c","#CE70B6","#E694BC","#FFC3E8", "#DB9FF6", "#987EBD",  "#8185E7", "#ABA9D6", "#979797", "#86A3D8", "#F4C283", "#856697","#AA7A86", "#ACA9CD", "#EF6E77", "#DD9983", "#B016FC")
+
+pall1_light <- c("#979797","#A6AAB1", "#869BBE", "#6585BD", "#76A1F1","#9DC8FF", "#A3E1EF", "#96FBEA", "#8CDBD1",  "#84D09A", "#7DCF7E", "#B0EE86", "#CEF7A5", "#DCFFC2", "#F2FFA8","#F4FF7B", "#F2F853", "#DDDB63", "#C7BB4E", "#BF9E43", "#CB883E", "#E78332", "#EA6C3D", "#DD5A3D", "#E44242", "#D65050",  "#E27373", "#F27D7C", "#F99A99", "#FFB7B5", "#E990A1","#D1768E" ,"#C9799F", "#BF89B1", "#B599C4","#ABA9D6",  "#987EBD", "#9B8EAC")
+
+#"#9887D9",
+pall2_12 <- c("#404e67","#809bce", "slategray2", "#ABA9D6" , "#9C5BA2" , "#C88080", "#9B2603", "#e89c81", "#ffd6a5", "#d5da97", "#7eb77f",  "#7fa9a7")
+
+```
+
+##### Species order 
+```{r}
+species_order <- c("Rhodotorula toruloides", "Cryptococcus neoformans", "Trichosporon ovoides",
+                   "Malassezia furfur", "Malassezia equina", "Malassezia dermatis", "Malassezia sympodialis", 
+                   "Malassezia pachydermatis", "Malassezia restricta", "Malassezia globosa", 
+                   "Pichia kudriavzevii", "Saccharomyces cerevisiae", "Nakaseomyces glabratus",
+                   "Candida metapsilosis", "Candida orthopsilosis", "Candida parapsilosis", "Candida tropicalis", 
+                   "Candida albicans", "Candida dubliniensis",
+                   "Hortaea werneckii",  "Aspergillus fumigatus", "Histoplasma capsulatum", 
+                   "Chrysosporium queenslandicum", 
+                   "Microsporum canis", "Microsporum audouinii", "Microsporum ferrugineum", 
+                   "Nannizzia gypsea", "Epidermophyton floccosum", "Trichophyton schoenleinii",
+                   "Trichophyton tonsurans", "Trichophyton mentagrophytes", "Trichophyton indotineae",
+                   "Trichophyton interdigitale", "Trichophyton concentricum", "Trichophyton soudanese",
+                   "Trichophyton kuryangei", "Trichophyton rubrum", "Trichophyton violaceum" )
+
+```
+
+
+## Overall statistics
+
+Reading the statistics file
+```{r}
+Species_stats <- read.csv("../results/Results_Aug23/Comparative_Genomics_Statistics/Statistics_PerSpecies.tsv", sep = "\t", na.strings = "")
+
+stat_df <- head(Species_stats, 10)
+rownames(stat_df) <- stat_df$X
+stat_df$X <- NULL
+stat_df <- data.frame(t(stat_df))
+
+rm(Species_stats)
+
+head(stat_df[1:3])
+
+stat_df <- rownames_to_column(stat_df, var = "sample_id")
+stat_df$sample_id <- sub("\\.", "_", stat_df$sample_id) 
+
+extracted_strings <- lapply(strsplit((stat_df$sample_id), "_"), function(x) paste(x[1:2], collapse = "_"))
+
+stat_df$species <- unlist(extracted_strings)
+
+stat_df[, 2:11] <- apply(stat_df[, 2:11], 2, function(x) as.numeric(as.character(x)))
+
+```
+
+
+Plotting the number of genes for each sample along with the number of those genes in orthogroups
+```{r, fig.width=6, fig.height=9}
+k <- ggplot(stat_df, aes(y = sample_id))+
+  geom_col(aes(x=Number.of.genes, fill = as.factor(species) ))+
+  geom_col(aes(x=Number.of.genes.in.orthogroups), alpha = 0.8, 
+           width = 0.2)+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_fill_manual(values = as.vector(pall1_light))+
+  guides(fill = 'none')
+
+k
+
+```
+
+We observe comparable gene numbers within closely related samples.
+As expected we see generally smaller amounts of genes in orthogroups among the 'outgroups'.
+
+```{r}
+rownames(stat_df) <- stat_df$sample_id
+print((stat_df[4:5]))
+```
+
+### Species overlap
+
+Looking at gene counts - ie. number of genes in each OG for each sample
+```{r}
+OG_sp_overlaps <- read.csv("../results/Results_Aug23/Comparative_Genomics_Statistics/Orthogroups_SpeciesOverlaps.tsv",
+                          header = TRUE, sep = "\t")
+
+OG_sp_overlaps$X <- sub("\\.", "_", OG_sp_overlaps$X)
+OG_sp_overlaps   <-column_to_rownames(OG_sp_overlaps, var = "X")
+
+split_name_col <- strsplit(rownames(OG_sp_overlaps), "_")
+
+genus    <- sapply(split_name_col, `[`, 1)
+species  <- sapply(split_name_col, `[`, 2)
+
+metadata <- data.frame(
+  genus = genus,
+#  species = sapply(split_name_col, `[`, 2),
+  row.names = rownames(OG_sp_overlaps)
+)
+
+
+```
+
+```{r}
+library(pheatmap)
+
+mat <- as.matrix(OG_sp_overlaps)
+
+mat[lower.tri(mat)] <- t(mat)[lower.tri(mat)]
+
+mat_pct <- sweep(mat, 2, apply(mat, 2, max), "/") * 100
+
+
+# Ensure metadata has a column 'Family' and rownames match mat_pct
+metadata <- metadata[rownames(mat_pct), , drop = FALSE]
+
+
+# plot
+pheatmap(
+  mat_pct,
+  annotation_row = metadata,
+  annotation_col = metadata,
+  color = colorRampPalette(c("white", "gold", "red3"))(100),
+  border_color = NA,
+  fontsize = 10,
+  main = "Orthogroup Overlap Between Species",
+  cluster_cols = FALSE,
+  cluster_rows = FALSE,
+  show_rownames = FALSE
+)
+
+```
+
+```{r}
+rm(mat, extracted_strings, mat_pct, metadata, OG_sp_overlaps, split_name_col, stat_df, k, genus)
+```
+
+
+## Distribution of orthogroups across samples (figure 3)
+
+For each sample we want to define family, genus and species 
+
+```{r}
+N0 <- read.csv("../results/Results_Aug23/Phylogenetic_Hierarchical_Orthogroups/N0.tsv", sep = "\t", header = TRUE)
+head(N0[1:5])
+```
+
+
+We want just presence/absence in each OG across all species 
+```{r}
+sum((N0$Aspergillus.fumigatus_IP24 == ''))
+
+OG_count_df <- N0 %>%
+            select(-c("HOG", "Gene.Tree.Parent.Clade")) %>%
+            mutate(across(2:67, ~ . != ""))  %>% #if the cell is not empty (ie the species has a gene in that OG)
+            group_by(OG) %>%
+            summarise(across(everything(), ~ any(.x == TRUE)), .groups = "drop")  #collapsing the multiple rows pr OG (which exist bc of the HOG that we just removed)
+
+names(OG_count_df) <- sub("\\.", "_", names(OG_count_df))
+```
+
+Taxa look-up data frame
+```{r}
+taxonomy <- data.frame(
+  sample = c(
+    "Aspergillus_fumigatus_IP24",
+    "Candida_albicans_F133_05",
+    "Candida_dubliniensis_11945",
+    "Candida_dubliniensis_2747",
+    "Candida_dubliniensis_8501",
+    "Candida_metapsilosis_Y_48470",
+    "Candida_orthopsilosis_Y_48468",
+    "Candida_parapsilosis_11301",
+    "Candida_parapsilosis_1954",
+    "Candida_tropicalis_MYCT_0816",
+    "Chrysosporium_queenslandicum_28077",
+    "Cryptococcus_neoformans_KN99",
+    "Epidermophyton_floccosum_100148",
+    "Epidermophyton_floccosum_10867",
+    "Epidermophyton_floccosum_130802",
+    "Histoplasma_capsulatum_G186A",
+    "Hortaea_werneckii_100455",
+    "Hortaea_werneckii_1163",
+    "Hortaea_werneckii_41051",
+    "Malassezia_dermatis_9169",
+    "Malassezia_equina_9969",
+    "Malassezia_furfur_141402",
+    "Malassezia_furfur_1878",
+    "Malassezia_furfur_6000",
+    "Malassezia_globosa_7705",
+    "Malassezia_globosa_7886",
+    "Malassezia_globosa_8744",
+    "Malassezia_pachydermatis_21004",
+    "Malassezia_restricta_7877",
+    "Malassezia_restricta_7991",
+    "Malassezia_sympodialis_44340",
+    "Microsporum_audouinii_119449",
+    "Microsporum_audouinii_33268",
+    "Microsporum_canis_113480",
+    "Microsporum_canis_15669",
+    "Microsporum_canis_44551",
+    "Microsporum_ferrugineum_131111",
+    "Microsporum_ferrugineum_37371",
+    "Nakaseomyces_glabratus_11311",
+    "Nakaseomyces_glabratus_138",
+    "Nakaseomyces_glabratus_15698",
+    "Nannizzia_gypsea_17164",
+    "Pichia_kudriavzevii_5732",
+    "Rhodotorula_toruloides_Z1",
+    "Saccharomyces_cerevisiae_wine010",
+    "Trichophyton_concentricum_109405",
+    "Trichophyton_concentricum_19626",
+    "Trichophyton_indotineae_BE17",
+    "Trichophyton_interdigitale_BE4",
+    "Trichophyton_kuryangei_IHEM13979",
+    "Trichophyton_mentagrophytes_124404",
+    "Trichophyton_mentagrophytes_43573",
+    "Trichophyton_rubrum_117539",
+    "Trichophyton_rubrum_17065",
+    "Trichophyton_rubrum_28986",
+    "Trichophyton_rubrum_73588",
+    "Trichophyton_schoenleinii_45859",
+    "Trichophyton_schoenleinii_85571",
+    "Trichophyton_soudanese_IHEM19743",
+    "Trichophyton_tonsurans_112188",
+    "Trichophyton_tonsurans_12935",
+    "Trichophyton_tonsurans_72988",
+    "Trichophyton_violaceum_73088",
+    "Trichosporon_ovoides_4098",
+    "Trichosporon_ovoides_7612",
+    "Trichosporon_ovoides_9430"
+  ),
+  species = c(
+    "Aspergillus_fumigatus" ,"Candida_albicans_F133","Candida_dubliniensis"
+    ,"Candida_dubliniensis", "Candida_dubliniensis","Candida_metapsilosis_Y",
+    "Candida_orthopsilosis_Y","Candida_parapsilosis", "Candida_parapsilosis","Candida_tropicalis_MYCT","Chrysosporium_queenslandicum",
+    "Cryptococcus_neoformans","Epidermophyton_floccosum","Epidermophyton_floccosum",
+    "Epidermophyton_floccosum","Histoplasma_capsulatum","Hortaea_werneckii" ,"Hortaea_werneckii","Hortaea_werneckii","Malassezia_dermatis","Malassezia_equina",
+    "Malassezia_furfur","Malassezia_furfur","Malassezia_furfur","Malassezia_globosa",
+    "Malassezia_globosa","Malassezia_globosa","Malassezia_pachydermatis",
+    "Malassezia_restricta","Malassezia_restricta","Malassezia_sympodialis",
+    "Microsporum_audouinii","Microsporum_audouinii","Microsporum_canis",
+    "Microsporum_canis","Microsporum_canis","Microsporum_ferrugineum",
+    "Microsporum_ferrugineum","Nakaseomyces_glabratus","Nakaseomyces_glabratus",
+    "Nakaseomyces_glabratus", "Nannizzia_gypsea","Pichia_kudriavzevii",
+    "Rhodotorula_toruloides","Saccharomyces_cerevisiae", "Trichophyton_concentricum",
+    "Trichophyton_concentricum" ,   "Trichophyton_indotineae"  ,   "Trichophyton_interdigitale",
+    "Trichophyton_kuryangei"   ,    "Trichophyton_mentagrophytes" , "Trichophyton_mentagrophytes", 
+    "Trichophyton_rubrum"      ,    "Trichophyton_rubrum"     ,    "Trichophyton_rubrum"    ,   
+    "Trichophyton_rubrum"     ,     "Trichophyton_schoenleinii"  ,  "Trichophyton_schoenleinii",
+    "Trichophyton_soudanese"     ,  "Trichophyton_tonsurans"   ,   "Trichophyton_tonsurans"  , 
+    "Trichophyton_tonsurans"    ,   "Trichophyton_violaceum"  ,     "Trichosporon_ovoides"   ,    
+    "Trichosporon_ovoides"       ,  "Trichosporon_ovoides"),
+  genus = c(
+    "Aspergillus",
+    rep("Candida", 9),
+    "Chrysosporium",
+    "Cryptococcus",
+    rep("Epidermophyton", 3),
+    "Histoplasma",
+    rep("Hortaea", 3),
+    rep("Malassezia", 12),
+    rep("Microsporum", 7),
+    rep("Nakaseomyces", 3),
+    "Nannizzia",
+    "Pichia",
+    "Rhodotorula",
+    "Saccharomyces",
+    rep("Trichophyton", 18),
+    rep("Trichosporon", 3)
+  ),
+  family = c(
+    "Aspergillaceae",     # Aspergillus
+    rep("Debaryomycetaceae", 9),  # Candida spp.
+    "Onygenaceae",        # Chrysosporium
+    "Cryptococcaceae",       # Cryptococcus
+    rep("Arthrodermataceae", 3),  # Epidermophyton
+    "Ajellomycetaceae",   # Histoplasma
+    rep("Teratosphaeriaceae", 3), # Hortaea
+    rep("Malasseziaceae", 12),    # Malassezia spp.
+    rep("Arthrodermataceae", 7),  # Microsporum spp.
+    rep("Saccharomycetaceae", 3), # Nakaseomyces glabratus
+    "Arthrodermataceae",  # Nannizzia
+    "Saccharomycetaceae", # Pichia
+    "Sporidiobolaceae",   # Rhodotorula
+    "Saccharomycetaceae", # Saccharomyces
+    rep("Arthrodermataceae", 18), # Trichophyton spp.
+    rep("Trichosporonaceae", 3)   # Trichosporon spp.
+  ),
+  stringsAsFactors = FALSE
+)
+
+family_dict <- c(
+  "Aspergillus"     = "Aspergillaceae",
+  "Candida"         = "Saccharomycetaceae",
+  "Chrysosporium"   = "Onygenaceae",
+  "Cryptococcus"    = "Cryptococcaceae",
+  "Epidermophyton"  = "Arthrodermataceae",
+  "Histoplasma"     = "Ajellomycetaceae",
+  "Hortaea"         = "Teratosphaeriaceae",
+  "Malassezia"      = "Malasseziaceae",
+  "Microsporum"     = "Arthrodermataceae",
+  "Nakaseomyces"    = "Saccharomycetaceae",
+  "Nannizzia"       = "Arthrodermataceae",
+  "Pichia"          = "Saccharomycetaceae",
+  "Rhodotorula"     = "Sporidiobolaceae",
+  "Saccharomyces"   = "Saccharomycetaceae",
+  "Trichophyton"    = "Arthrodermataceae",
+  "Trichosporon"    = "Trichosporonaceae"
+)
+
+```
+
+Merge the OG-counts with the taxonomy of the samples, and then summarise the distribution of OGs in each taxonomic category
+```{r}
+# Convert to long format
+OG_count_long <- OG_count_df %>%
+  pivot_longer(cols = 2:67, names_to = "sample", values_to = "present") %>%
+  filter(present)
+
+# Add taxonomy info
+OG_count_long <- OG_count_long %>%
+  left_join(taxonomy, by = "sample")
+
+# For each OG, find which families/genera/species have it
+og_groups <- OG_count_long %>%
+  group_by(OG) %>%
+  summarise(
+    n_sample    = n(),
+    n_species   = n_distinct(species),
+    n_genera    = n_distinct(genus),
+    n_families  = n_distinct(family),
+    all_species = n_sample == ncol(OG_count_df) - 1
+  )
+
+# Assign a category to each OG
+og_groups <- og_groups %>%
+  mutate(category = case_when(
+    all_species ~ "All",
+    n_families > 1 ~ "Several families",
+    n_families == 1 & n_genera > 1 ~ "Family",
+    n_families == 1 & n_genera == 1 & n_species > 1 ~ "Genus",
+    n_species == 1 ~ "Species",
+  #  n_species == 1 & n_sample == 1 ~ "sample", # We include these in the species-specific for better visualisation
+    TRUE ~ "Other"
+  ))
+```
+
+Count OGs in each sample in each catgory
+```{r}
+OG_count <- OG_count_long %>%
+  left_join(og_groups %>% select(OG, category), by = "OG") %>%
+  group_by(sample, category) %>%
+  summarise(count = n(), .groups = "drop")
+
+# Percentages ? 
+OG_count <- OG_count %>%
+  group_by(sample) %>%
+  mutate(percent = count / sum(count) * 100)
+
+```
+
+Tree order - so it matches with the phylo-tree for fig 2
+```{r}
+#library(ape)
+#tree <- read.tree("../results/Results_Aug23/Species_Tree/SpeciesTree_rooted_node_labels.txt")
+
+sample_order <- c( "Rhodotorula_toruloides_Z1", "Cryptococcus_neoformans_KN99", "Trichosporon_ovoides_9430",
+                   "Trichosporon_ovoides_7612", "Trichosporon_ovoides_4098",
+                   "Malassezia_furfur_141402",  "Malassezia_furfur_1878", "Malassezia_furfur_6000",             
+                   "Malassezia_equina_9969" , "Malassezia_dermatis_9169", "Malassezia_sympodialis_44340" ,
+                   "Malassezia_pachydermatis_21004", "Malassezia_restricta_7991" , "Malassezia_restricta_7877"  ,
+                   "Malassezia_globosa_7705"  ,  "Malassezia_globosa_8744" , "Malassezia_globosa_7886",           
+                   "Pichia_kudriavzevii_5732" ,"Saccharomyces_cerevisiae_wine010","Nakaseomyces_glabratus_138",
+                   "Nakaseomyces_glabratus_15698", "Nakaseomyces_glabratus_11311",
+                   "Candida_metapsilosis_Y_48470", "Candida_orthopsilosis_Y_48468" ,"Candida_parapsilosis_1954",
+                   "Candida_parapsilosis_11301", "Candida_tropicalis_MYCT_0816", "Candida_albicans_F133_05",
+                   "Candida_dubliniensis_2747",  "Candida_dubliniensis_11945", "Candida_dubliniensis_8501",
+                   "Hortaea_werneckii_1163", "Hortaea_werneckii_41051", "Hortaea_werneckii_100455",
+                   "Aspergillus_fumigatus_IP24","Histoplasma_capsulatum_G186A","Chrysosporium_queenslandicum_28077",
+                   "Microsporum_canis_44551", "Microsporum_canis_113480", "Microsporum_canis_15669",  
+                   "Microsporum_audouinii_33268",      "Microsporum_audouinii_119449",
+                   "Microsporum_ferrugineum_37371", "Microsporum_ferrugineum_131111",
+                   "Nannizzia_gypsea_17164", "Epidermophyton_floccosum_10867", "Epidermophyton_floccosum_130802",
+                   "Epidermophyton_floccosum_100148",
+                   "Trichophyton_schoenleinii_85571",  "Trichophyton_schoenleinii_45859",
+                   "Trichophyton_tonsurans_112188","Trichophyton_tonsurans_12935", "Trichophyton_tonsurans_72988",
+                   "Trichophyton_mentagrophytes_124404", "Trichophyton_indotineae_BE17",
+                   "Trichophyton_interdigitale_BE4", "Trichophyton_mentagrophytes_43573",
+                    "Trichophyton_concentricum_109405", "Trichophyton_concentricum_19626",
+                   "Trichophyton_soudanese_IHEM19743",   "Trichophyton_kuryangei_IHEM13979",
+                   "Trichophyton_rubrum_17065","Trichophyton_rubrum_117539","Trichophyton_rubrum_28986",
+                   "Trichophyton_rubrum_73588",   "Trichophyton_violaceum_73088")
+
+```
+
+### fig 3 a 
+Plotting barplot
+```{r, fig.height=9, fig.width=4}
+OG_count$category <- factor(OG_count$category, 
+                      levels = rev(c("All", "Several families", "Family", "Genus", "Species")))
+
+OG_count$sample <- factor(OG_count$sample, 
+                      levels = rev(sample_order))
+
+OG_dist_plot <- ggplot(OG_count, aes(y = sample, x = count, fill = category))+
+  geom_bar(stat = "identity", width = 0.85) + 
+  labs(
+    title = "Distribution of Orthogroups per Species",
+    x = NULL,
+    y = NULL,
+    fill = "Category"
+  ) +
+  theme(panel.grid.minor = element_blank(), panel.grid.major.y = element_blank(),
+        axis.line = element_line(colour = "grey20", linewidth = 0.5), axis.ticks.x = element_blank(),
+        axis.ticks.y = element_line(colour = "grey20", linewidth = 0.5))+
+  scale_x_continuous(expand = expansion(mult = 0, add = 100))
+
+OG_dist_plot
+```
+
+
+Saving plot 
+```{r}
+pdf("../plots/OG_dist_plot.pdf", height = 9, width = 6.5)
+OG_dist_plot
+dev.off()
+```
+
+saving file 
+```{r}
+OG_count_wide <- OG_count %>%
+  ungroup() %>%
+  select(-percent) %>%
+  pivot_wider(names_from = sample, values_from = count)
+
+OG_percent_wide <- OG_count %>%
+  mutate(percent = round(percent, digits = 1)) %>%
+  ungroup() %>%
+  select(-count) %>%
+  pivot_wider(names_from = sample, values_from = percent) 
+
+write.csv(OG_count_wide, "../generated/OG_dist_counts.csv")
+write.csv(OG_percent_wide, "../generated/OG_dist_percent.csv")
+```
+
+
+### fig 3 b - upset plot 
+
+Upset on genus level
+Making upset dataframe with presence/abscence for each genus in each OG
+```{r}
+upset_df <-  OG_count_long %>%
+  select(-c("sample", "species", "family")) %>%
+  group_by(OG, genus) %>%
+  summarise(present = any(present), .groups = "drop") %>%
+  pivot_wider(names_from = "genus", values_from = present, values_fill = FALSE)
+```
+
+Plotting (takes a little time)
+```{r, fig.width=10, fig.height=7}
+intersect <- rev(c("Rhodotorula",   "Cryptococcus",  "Trichosporon" ,  "Malassezia" , "Pichia",  "Saccharomyces",  "Nakaseomyces",   "Candida", "Hortaea",  "Aspergillus"   ,   "Histoplasma" ,    "Chrysosporium","Microsporum" , "Nannizzia" , "Epidermophyton", "Trichophyton" ))
+
+upsetplot <- upset(upset_df, 
+      intersect = intersect, # colnames(upset_df)[2:17], 
+      n_intersections = 18, height_ratio = c(0.99, 0.01),
+      width_ratio = c(0.2, 0.8),
+      sort_sets = F,
+      matrix=(
+        intersection_matrix(
+            geom=geom_point(
+                size=1.8, 
+            ),
+            segment=geom_segment(
+                linewidth = 0.3)
+            )
+        )
+)
+
+upsetplot
+
+```
+
+Saving to pdf
+```{r}
+pdf("../plots/upset_plot.pdf", height = 5.5, width = 8)
+upsetplot
+dev.off()
+```
+
+

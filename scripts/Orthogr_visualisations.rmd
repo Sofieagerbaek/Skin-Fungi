@@ -1,0 +1,2310 @@
+---
+title: "Orthofinder_visu_script"
+output:
+  pdf_document: default
+  html_document: default
+date: "2023-12-06"
+---
+
+```{r, include=FALSE}
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(plotly)
+library(RColorBrewer)
+library(heatmaply)
+library(writexl)
+library(Polychrome)
+```
+
+```{r, include=FALSE}
+library(cowplot)
+options(digits = 3)        # number of digits printed by R default (vectors, data.frames, lists)
+options(pillar.sigfig = 3) # number of digits printed by tibbles default.
+
+text_base_size   <- 9 # in pt
+fig.witdh        <- 180  # in mm
+fig.height       <- 125  # in mm
+
+# Set all text in plots to same size
+theme_set(theme_cowplot(font_size = 10, rel_small = 1, rel_tiny = 1, rel_large = 1))
+theme_update(panel.grid.major = element_line(colour="gray85"), panel.grid.minor = element_line(colour="gray95", linetype = 7))
+# Setting output sizes for plots
+knitr::opts_chunk$set(fig.width = fig.witdh/25.4)
+knitr::opts_chunk$set(fig.height = fig.height/25.4)
+knitr::opts_chunk$set(dpi = 108) # You need to find your monitors dpi yourself.
+
+# Setting text size inside plots (geom_text, geom_label etc.)
+ggplot_text_size <- text_base_size / ggplot2::.pt
+# Now use: geom_text(..., size = ggplot_text_size)
+
+
+options(ggplot2.continuous.fill  = scale_fill_viridis_c)
+options(ggplot2.discrete.fill    = c("slategray2", "#404e67","#809bce","#9887D9" ,"#9C5BA2", "#DB9FF6",  "#d1625c", "#ffd6a5", "#e89c81"))
+options(ggplot2.continuous.colour = scale_colour_viridis_c)
+options(ggplot2.discrete.colour   = c("slategray2","#404e67", "#809bce","#9C5BA2","#9887D9",  "#d1625c", "#ffd6a5", "#e89c81"))
+
+#A good palette for many distinct colours:
+#dist_palette25 <- c("#86A3D8", "#F4C283", "#856697","#AA7A86", "#ACA9CD", "#EF6E77", "#DD9983", "#B016FC", "#E1C753", "#9D2E98", "#AEB951", "#4D85FB", "#D768D2",  "#6C947E", "#B04F76","#968FED", "#B04FB7",  "#312464", "#A03C18","#FB66AD", "#912EC5",  "#381CC9",  "#ED9552", "#A0A373", "#BC3D63")
+
+pall1 <- c("#242D3B", "#404e67", "#809bce","#89B2E7", "#7fa9a7", "#7eb77f", "#a8cea9", "#d3ecc4", "#ecffc3", "#d5da97","#AA9F40", "#A27E31","#de8f49", "#D67238", "#C8461E", "#9B2603", "#420602", "#802F2F", "#C88080","#E694BC","#CE70B6" , "#9C5BA2", "#7442A3",  "#9887d0", "#6c6b9c", "#443654")
+
+#pall1_light <- c("#6585BD", "#76A1F1","#9DC8FF", "#A3E1EF", "#96FBEA", "#8AD1B6", "#7DCF7E", "#B0EE86", "#ecffc3", "#d5da97","#E9F466","#DBD40F", "#AA9F40", "#A27E31", "#D67238","#de8f49", "#FF8A67", "#FF7066", "#E44242", "#D66161", "#C88080","#d2698c","#CE70B6","#E694BC","#FFC3E8", "#DB9FF6", "#987EBD",  "#8185E7", "#ABA9D6", "#979797", "#86A3D8", "#F4C283", "#856697","#AA7A86", "#ACA9CD", "#EF6E77", "#DD9983", "#B016FC")
+
+pall1_light <- c("#979797","#A6AAB1", "#869BBE", "#6585BD", "#76A1F1","#9DC8FF", "#A3E1EF", "#96FBEA", "#8CDBD1",  "#84D09A", "#7DCF7E", "#B0EE86", "#CEF7A5", "#DCFFC2", "#F2FFA8","#F4FF7B", "#F2F853", "#DDDB63", "#C7BB4E", "#BF9E43", "#CB883E", "#E78332", "#EA6C3D", "#DD5A3D", "#E44242", "#D65050",  "#E27373", "#F27D7C", "#F99A99", "#FFB7B5", "#E990A1","#D1768E" ,"#C9799F", "#BF89B1", "#B599C4","#ABA9D6",  "#987EBD", "#9B8EAC")
+
+#"#9887D9",
+pall2_12 <- c("#404e67","#809bce", "slategray2", "#ABA9D6" , "#9C5BA2" , "#C88080", "#9B2603", "#e89c81", "#ffd6a5", "#d5da97", "#7eb77f",  "#7fa9a7")
+
+```
+
+#Overall statistics
+Reading the statistics file
+```{r}
+Species_stats <- read.csv("../results/Results_Aug23/Comparative_Genomics_Statistics/Statistics_PerSpecies.tsv", sep = "\t", na.strings = "")
+
+stat_df <- head(Species_stats, 10)
+rownames(stat_df) <- stat_df$X
+stat_df$X <- NULL
+stat_df <- data.frame(t(stat_df))
+
+rm(Species_stats)
+```
+
+Extracting species names and numbers from the longer fasta file names given 
+```{r}
+extracted_strings <- lapply(strsplit(row.names(stat_df), "_"), function(x) paste(x[1:2], collapse = "_"))
+
+stat_df$species <- unlist(extracted_strings)
+
+seq_nr <- lapply(strsplit(row.names(stat_df),  "[_\\.]"), function(x) paste(x[3]))
+stat_df$Sample <- (seq_nr)
+
+rm(extracted_strings, seq_nr)
+```
+
+make the strain numbers into factors, and make the rest of the statistics into numeric
+```{r}
+stat_df[, 1:10] <- apply(stat_df[, 1:10], 2, function(x) as.numeric(as.character(x)))
+
+```
+
+```{r}
+stat_df$Sample <- as.numeric(stat_df$Sample)
+
+stat_df <- stat_df[order(stat_df$Sample),]
+
+#concatenating sample nr. and species to make labels - consider taking the outgr without samplenr. into consideration
+stat_df$sp_sample <- paste(stat_df$species,stat_df$Sample,sep="_")
+
+stat_df <- stat_df[order(stat_df$species),]
+stat_df$Sample <- factor(stat_df$Sample, levels = unique(stat_df$Sample))
+
+```
+
+
+Plotting the number of genes for each sample along with the number of those genes in orthogroups
+```{r}
+k <- ggplot(stat_df, aes(y = sp_sample))+
+  geom_col(aes(x=Number.of.genes, fill = as.factor(species) ))+
+  geom_col(aes(x=Number.of.genes.in.orthogroups, size = "Nr. of genes in orthogroups"), alpha = 0.8, 
+           width = 0.2)+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_fill_manual(values = as.vector(pall1_light))
+
+k
+```
+
+We observe comparable gene numbers. As expected we see generally smaller amounts of genes in orthogroups among the ourgrs. Not true in all of them, which is (ofc) dependent on how close the outgroups are related to our groups. fx Torulaspora and saccharomyces have comparable % of genes in orthogroups as our samples. 
+```{r}
+print((stat_df[4]))
+#print(sort(stat_df$Percentage.of.genes.in.orthogroups))
+
+```
+
+
+Looking at gene counts - ie. number of genes in each OG for each sample
+```{r}
+OG_genecounts <- read.csv("../results/Results_Aug23/Comparative_Genomics_Statistics/Orthogroups_SpeciesOverlaps.tsv", header = TRUE, sep = "\t")
+
+OG_genecounts$dist <- apply(OG_genecounts[2:57], 1, function(row) if (all(row != 0)) "all" else "NA")
+
+```
+
+
+```{r}
+OG_genecounts_family <- OG_genecounts
+
+rename_dict <- c('Candida' = "Saccharomycetaceae", "Torulaspora" = "Saccharomycetaceae", "Nakaseomyces" = "Saccharomycetaceae", "Pichia" = "Saccharomycetaceae", "Saccharomyces" = "Saccharomycetaceae", "Kazachstania" = "Saccharomycetaceae",
+                 'Hortaea' = "Teratosphaeriaceae", 
+              'Trichophyton' = "Anthrodermatacaea", 'Microsporum' = "Anthrodermatacaea", 'Nannizzia' = "Anthrodermatacaea", 'Epidermophyton' = "Anthrodermatacaea", 
+'Trichosporon' = "Trichosporonaceae",
+                  'Malassezia' = "Malasseziaceae",
+"Blastocladiella" = "Blastocladiella", "Radiomyces" = "Radiomyces")
+
+#Rename to genus name first 
+rename_non_zero <- function(col_name, df) {
+  # Extract the first two parts of the column name (before the second underscore)
+  new_name <- sub("_.*", "", col_name)  
+  
+  # Replace non-zero values in the column
+  df[[col_name]][df[[col_name]] != 0] <- new_name
+  return(df)
+}
+
+for (col in names(OG_genecounts_family)[2:57]) {
+  OG_genecounts_family <- rename_non_zero(col, OG_genecounts_family)
+}
+
+#Then rename to family names
+for (col in names(OG_genecounts_family)[2:57]) {
+  # Find non-NA values in the column
+  non_na_indices <- !is.na(OG_genecounts_family[[col]])
+  
+  # Replace non-NA values with the corresponding value from the dictionary
+  OG_genecounts_family[[col]][non_na_indices] <- rename_dict[OG_genecounts_family[[col]][non_na_indices]]
+}
+
+
+#counting 
+OG_genecounts_family$unicounts <- apply(OG_genecounts_family [2:57], 1, function(row) length(unique(na.omit(row))))
+
+
+table(OG_genecounts_family$unicounts)
+
+OG_genecounts_family[OG_genecounts_family$unicounts==1,]$dist <- "family-specific"
+
+table(OG_genecounts_family$dist)
+```
+
+
+genus
+```{r}
+OG_genecounts_genus <- OG_genecounts_family
+
+rename_non_zero <- function(col_name, df) {
+  # Extract the first two parts of the column name (before the second underscore)
+  new_name <- sub("_.*", "", col_name)  
+  
+  # Replace non-zero values in the column
+  df[[col_name]][df[[col_name]] != 0] <- new_name
+  return(df)
+}
+
+for (col in names(OG_genecounts_genus)[2:57]) {
+  OG_genecounts_genus <- rename_non_zero(col, OG_genecounts_genus)
+}
+
+#counting 
+OG_genecounts_genus$unicounts <- apply(OG_genecounts_genus[2:57], 1, function(row) length(unique(row)))
+
+OG_genecounts_genus[OG_genecounts_genus$unicounts==2,]$dist <- "genus-specific"
+
+table(OG_genecounts_genus$dist)
+
+```
+
+species specific
+```{r}
+rename_non_zero <- function(col_name, df) {
+  # Extract the first two parts of the column name (before the second underscore)
+  new_name <- sub("(_[^_]+).*", "\\1", col_name)  
+  
+  # Replace non-zero values in the column
+  df[[col_name]][df[[col_name]] != 0] <- new_name
+  return(df)
+}
+
+OG_genecounts_species <- OG_genecounts_genus
+
+for (col in names(OG_genecounts_species)[2:57]) {
+  OG_genecounts_species <- rename_non_zero(col, OG_genecounts_species)
+}
+
+OG_genecounts_species[] <- lapply(OG_genecounts_species, function(x) gsub("Trichophyton_menthagrophytes", "Trichophyton_mentagrophytes", x))
+
+OG_genecounts_species$unicounts <- apply(OG_genecounts_species[2:57], 1, function(row) length(unique(row)))
+
+OG_genecounts_species[OG_genecounts_species$unicounts==2,]$dist <- "species-specific" #2 unique counts, one is NA, the other is the species name
+
+table(OG_genecounts_species$dist)
+
+OG_genecounts_species[OG_genecounts_species$dist == "NA",]$dist <- "Several"
+
+
+table(OG_genecounts_species$dist)
+```
+
+
+```{r}
+OG_genecounts_species_visu <- OG_genecounts_species
+
+rename_non_zero <- function(col_name, df) {
+  # Extract the first two parts of the column name (before the second underscore)
+  new_name <- sub("\\..*", "", col_name)  
+  
+  # Replace non-zero values in the column
+  df[[col_name]][df[[col_name]] != 0] <- new_name
+  return(df)
+}
+
+
+for (col in names(OG_genecounts_species_visu)[2:57]) {
+  OG_genecounts_species_visu <- rename_non_zero(col, OG_genecounts_species_visu)
+}
+
+OG_genecounts_species_visu$unicounts <- NULL
+#OG_genecounts_species_visu$Total <- NULL
+```
+
+```{r}
+OG_genecounts_species_visu <- OG_genecounts_species_visu %>% pivot_longer(cols=colnames(OG_genecounts_species_visu[2:57]), names_to = 'full_names', values_to = "Species")
+
+head(OG_genecounts_species_visu)
+
+OG_genecounts_species_visu$full_names <- NULL
+
+OG_genecounts_species_visu <- OG_genecounts_species_visu %>% filter(Species != 0)
+
+unique(OG_genecounts_species_visu$Species)
+
+```
+
+
+summarise how many species-specific
+```{r}
+spspec <- OG_genecounts_species_visu %>% filter(dist == "species-specific")
+
+spspec$Species_nocbs <- sub("_[^_]*$", "", spspec$Species)
+
+table(spspec$Species) 
+
+spspec$Total <- as.numeric(spspec$Total)
+spspec %>% group_by(Species) %>% summarise(gcounts = sum(Total))
+
+table(spspec$Species_nocbs) 
+q <- table(spspec$Species_nocbs) 
+
+sum(q)
+
+sum(OG_genecounts_species$dist == "species-specific")
+
+wq <- OG_genecounts_species %>% filter(dist == "species-specific")
+
+wq$unicounts <- rowSums(!is.na(wq[2:57])) 
+
+spspec_OGs <- spspec$Orthogroup
+spog_genec <- OG_genecounts[OG_genecounts$Orthogroup %in% spspec_OGs,]
+
+colSums(spog_genec[2:57])
+
+```
+
+
+
+
+```{r}
+library(stringr)
+
+# Read the tree from the text file (replace 'tree.txt' with the path to your file)
+tree_text <- readLines("../SpeciesTree_rooted_node_labels_renamed - Kopi (2).txt")
+
+# Combine lines into a single string if necessary
+tree_text <- paste(tree_text, collapse = "")
+
+# Remove the branch lengths (numbers after the colon) and internal node labels (N followed by a number)
+tree_text <- gsub(":[0-9.]+", "", tree_text)  # Remove branch lengths
+tree_text <- gsub("N[0-9]+", "", tree_text)   # Remove internal node labels
+
+# Extract leaf names (names that do not contain parentheses)
+leaf_names <- unlist(str_extract_all(tree_text, "\\b[A-Za-z_0-9]+\\b"))
+
+# Print the leaf names
+leaf_names
+
+leaf_names <- leaf_names[leaf_names != "05"]
+leaf_names <- gsub("e$", "", leaf_names)
+
+dput(leaf_names)
+leaf_order <- c("Radiomyces_spectabilis", "Blastocladiella_emersonii_22665", 
+"Trichosporon_ovoides_9430", "Trichosporon_ovoides_7612", "Trichosporon_ovoides_4098", "Malassezia_furfur_1878","Malassezia_furfur_6000", "Malassezia_furfur_1414029", 
+"Malassezia_furfur_1414015", "Malassezia_restricta_7991","Malassezia_restricta_7877", "Malassezia_globosa_7705","Malassezia_globosa_8744", "Malassezia_globosa_7886", 
+"Pichia_kudriavzevii_57331","Pichia_kudriavzevii_57316",  "Nakaseomyces_glabratus_138", 
+"Nakaseomyces_glabratus_15698","Nakaseomyces_glabratus_11311", "Candida_parapsilosis_11301", "Candida_parapsilosis_1954",  "Candida_tropicalis_94", 
+"Candida_dubliniensis_2747", "Candida_dubliniensis_11945", "Candida_dubliniensis_8501", 
+"Hortaea_werneckii_1163", "Hortaea_werneckii_41051","Hortaea_werneckii_100455",  
+"Microsporum_canis_15669",  "Microsporum_canis_44551", "Microsporum_canis_113480", "Microsporum_audouinii_119449", "Microsporum_audouinii_33268", "Microsporum_ferrugineum_131111", 
+"Microsporum_ferrugineum_37371", 
+"Nannizzia_gypsea_17164", "Epidermophyton_floccosum_130802", "Epidermophyton_floccosum_10867", 
+"Epidermophyton_floccosum_100148", 
+"Trichophyton_schoenleinii_45859", "Trichophyton_schoenleinii_85571", 
+"Trichophyton_mentagrophytes_124404", "Trichophyton_menthagrophytes_43573", 
+"Trichophyton_tonsurans_112188", "Trichophyton_tonsurans_12935","Trichophyton_tonsurans_72988", 
+ "Trichophyton_concentricum_19626","Trichophyton_concentricum_109405", 
+ "Trichophyton_violaceum_73088", "Trichophyton_verrucosum_46059", "Trichophyton_rubrum_117539", "Trichophyton_rubrum_28986", "Trichophyton_violaceum_51763", "Trichophyton_rubrum_73588",  "Trichophyton_rubrum_17065", "Trichophyton_violaceum_120316"
+)
+
+
+```
+
+
+
+```{r}
+OG_genecounts_species_visu$dist <- factor(OG_genecounts_species_visu$dist, 
+                                          levels = rev(c("all", "Several", "family-specific", "genus-specific", "species-specific")))
+
+unique(OG_genecounts_species_visu$Species)
+
+OG_genecounts_species_visu$Species <- factor(OG_genecounts_species_visu$Species, 
+                                          levels = rev(leaf_order))
+
+
+p2 <- ggplot(OG_genecounts_species_visu, aes(y = factor(Species), fill = dist))+
+  geom_bar(stat = 'count')+
+  theme(axis.text.y = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.ticks.x = element_blank(), axis.text.x = element_text(size = 9))+
+    scale_x_continuous(breaks = c(0, 2500, 5000, 7500))  # Set custom breaks
+
+p2
+
+# axis.text.x = element_text(angle = 70, hjust = 1, vjust = 1)
+
+
+#ggsave("n_OG_species_dist.png", device = "png", plot = p2, height = 16, width = 7.5, units = "cm", dpi = 400)
+ 
+```
+
+Making fasta of all OGs with more than one sample
+ - Moving this to Python as it runs significantly faster than in R. 
+
+```{r}
+library(readxl)
+library("Biostrings")
+
+path2 = "O:/SkinScienceTeam/4_fungi/6_Results/WGS/Orthofinder/all54_2outgroups_230924"
+path = paste0(path2, "/Orthogroup_Sequences/")
+
+df2 <- data.frame(OG = OG_genecounts$Orthogroup)
+
+write.csv(df2, "df2.tsv", sep = '\t')
+  
+# OG_list       <- c()
+# fasta_headers <- c()
+# fasta_seqs    <- c()
+# 
+# for (OG in df1$OG) {
+#   file = paste0(OG, ".fa")
+#   path_full      <- paste0(path, file)
+#   fastaseqs      <- Biostrings::readAAStringSet(path_full)
+#   headers        <- names(fastaseqs)
+#   
+#   longest_ind    <- which.max(length(fastaseqs))
+#   
+#   longest_seq    <- as.character(fastaseqs[longest_ind])
+#   longest_header <- headers[longest_ind]
+#     
+#   OG_list        <- append(OG_list, OG)
+#   fasta_headers  <- append(fasta_headers, longest_header)
+#   fasta_seqs     <- append(fasta_seqs, longest_seq)
+# 
+# }
+# 
+# df1$fasta_headers  <- fasta_headers
+# df1$fasta_sequence <- fasta_seqs
+#   
+# file_name <- paste0(sheet_list_names[which(sheet_list == sheet)], "_OGs_incl_sequences.tsv")
+# file_path <- paste0(path2, file_name)
+# write.csv(df, file = "all_OG_sequences.tsv") 
+# 
+# fastaseqs      <- Biostrings::readAAStringSet(path_full)
+
+```
+
+
+PCA on on gene counts 
+```{r}
+library(ggfortify)
+only_counts <- OG_genecounts[2:57]
+
+only_counts[is.na(only_counts)] <- 0
+
+only_counts <- t(only_counts)
+
+pca <- prcomp(only_counts)
+
+autoplot(pca)
+
+genera <- data.frame(sample = row.names(only_counts))
+genera$species <- sub("(_[^_]+).*", "\\1", genera$sample) 
+genera$genea   <- sub("_.*", "", genera$sample)  
+
+only_counts$genera <- genera$genea
+
+autoplot(pca, data = genera, colour = 'genea', size = 4)
+
+```
+
+
+
+# Moving on the the comparative  statistics 
+
+Looking at total stats
+```{r}
+
+# Duplicate the dataframe
+new_orthologuestats_total <- read.table("Comparative_Genomics_Statistics/OrthologuesStats_Totals.tsv", header = TRUE, sep = "\t")  
+
+# Extract the first two parts of the names and use them as new column names
+colnames(new_orthologuestats_total) <- sapply(strsplit(colnames(new_orthologuestats_total), "[_//.]"), 
+                                              function(x) paste(x[1], x[2], x[3], sep = "_"))
+
+# The same for rownames - but these are in the first column
+new_orthologuestats_total$X <- sapply(strsplit(new_orthologuestats_total$X, "[_//.]"), 
+                                                 function(x) paste(x[1], x[2], x[3], sep = "_"))
+
+#new_orthologuestats_total[new_orthologuestats_total$X == "Trichophyton_menthagrophytes_43573",]$X <- "Trichophyton_mentagrophytes_43573"
+new_orthologuestats_total$X <- make.unique(new_orthologuestats_total$X, sep = ".")
+rownames(new_orthologuestats_total) <- new_orthologuestats_total$X
+new_orthologuestats_total <- new_orthologuestats_total[, -1]
+
+head(new_orthologuestats_total)
+
+```
+
+
+Visualising the species overlap data, ie. how many orthogroups are shared between two samples
+```{r}
+Orthogroups_SpeciesOverlaps <- read.table("Comparative_Genomics_Statistics/Orthogroups_SpeciesOverlaps.tsv", header = TRUE, sep = "\t")
+rownames(Orthogroups_SpeciesOverlaps) <- Orthogroups_SpeciesOverlaps[,1]
+Orthogroups_SpeciesOverlaps$X <- NULL
+
+summary(Orthogroups_SpeciesOverlaps)
+
+
+rown <- row.names(Orthogroups_SpeciesOverlaps)
+rown2 <- sub("^([^\\.]+).*", "\\1", rown)
+
+row.names(Orthogroups_SpeciesOverlaps) <- rown2
+colnames(Orthogroups_SpeciesOverlaps) <- rown2
+
+apply(Orthogroups_SpeciesOverlaps, 2, which.max)
+
+df_filtered <- Orthogroups_SpeciesOverlaps %>%
+#  select(-excl) %>%
+  rownames_to_column(var = "row_col") %>%
+#  filter(!row_col %in% excl) %>%
+  column_to_rownames(var = "row_col") %>%
+  as.data.frame()
+
+
+rown <- row.names(df_filtered)
+rown1 <- sub("^[^_]*_([^_]+)_.*", "\\1", rown)
+rown2 <- sub("^([^_]+).*", "\\1", rown)
+df_filtered$Species <- rown1
+df_filtered$Genus <- rown2
+```
+
+
+
+```{r}
+sc <-   scale_fill_gradient2(
+  high = "lightcyan",
+  mid  = "slategray3",
+  low = "#182130",
+  midpoint = 6000,
+  space = "Lab",
+  na.value = "grey50",
+  guide = "colourbar",
+  aesthetics = "fill"
+  
+)
+
+
+heatmaply(df_filtered,
+          scale_fill_gradient_fun = sc,
+          plot_title = "Heatmap Example",
+          #xlab = "X-axis Label",
+          #ylab = "Y-axis Label",
+          )
+
+
+
+rm(sc)
+```
+
+'normalizing' the shared OG numbers so they are relative numbers rather than absolute - more comparable across species with very varying gene numbers. 
+```{r}
+heatmap_data <- as.matrix(Orthogroups_SpeciesOverlaps)
+
+diag(heatmap_data)[[1]]
+
+compute_min_diagonals <- function(mat) {
+  min_diagonals <- matrix(NA, nrow(mat), ncol(mat))  # Initialize matrix for minimum diagonals
+  for (i in 1:nrow(mat)) {
+    for (j in 1:ncol(mat)) {
+      # find the two diagonals (i,i) and (j,j) for each cell (i,j)
+      diag_j <- mat[j,j]
+      diag_i <- mat[i,i]
+      
+      #Determine the min of the two diagonals and put this into the new matrix
+      min_diagonals[i, j] <- min(diag_i, diag_j, na.rm = TRUE)
+    }
+  }
+  return(min_diagonals)
+}
+min_diags <- compute_min_diagonals(heatmap_data)
+
+
+# Normalize the heatmap data matrix
+normalized_heatmap_data <- heatmap_data / min_diags
+
+normalized_heatmap_data <- as.data.frame(normalized_heatmap_data)
+
+normalized_heatmap_data$Species <- rown1
+normalized_heatmap_data$Genus <- rown2
+```
+
+
+```{r}
+sc <-   scale_fill_gradient2(
+  high = "lightcyan",
+  mid  = "slategray3",
+  low = "#182130",
+  midpoint = 0.7,
+  space = "Lab",
+  na.value = "grey50",
+  guide = "colourbar",
+  aesthetics = "fill"
+  
+)
+
+# Generate the heatmap with the normalized data
+heatmaply(normalized_heatmap_data,scale_fill_gradient_fun = sc)
+```
+
+stats_pr_species
+```{r}
+stats_prspecies <- read.csv("Comparative_Genomics_Statistics/Statistics_PerSpecies.tsv", header = TRUE, sep = "\t", ro)
+
+
+stats_prspecies_1 <- stats_prspecies[1:10,]
+rownames(stats_prspecies_1) <- stats_prspecies_1[, 1]  ## set rownames
+stats_prspecies_1 <- stats_prspecies_1[, -1]
+
+stats_prspecies_1t <- as.data.frame(t(stats_prspecies_1))
+stats_prspecies_1t$species <- row.names(stats_prspecies_1t)
+write_xlsx(stats_prspecies_1t, path = "stats_pr_species.xlsx", col_names = TRUE)
+
+df <- data_frame('In OG' = stats_prspecies_1t$`Number of genes in orthogroups`, 'Not in OG' = stats_prspecies_1t$`Number of unassigned genes`, species = stats_prspecies_1t$species)
+df <- df %>% pivot_longer(cols = c(1,2), names_to = 'names', values_to = "number")
+df$number <- as.numeric(df$number)
+df$species <- sub("\\..*", "", df$species) 
+df$species <- sub("_", " ", df$species) 
+df$species <- sub("_", " ", df$species) 
+
+ggplot(df, aes(x = species, y = number, fill = names)) + 
+  geom_col(position = position_fill())+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), axis.ticks.x = element_blank())+
+  labs(fill = NULL, y = "Percentage", x = NULL, title =  "Percentage of genes in orthogroups")
+ #  geom_bar(position = "stack", stat = "identity")
+
+```
+
+
+
+Removing data we don't need going forward 
+```{r}
+rm(`OrthologuesStats_many-to-many`, `OrthologuesStats_many-to-one`, `OrthologuesStats_one-to-many`, `OrthologuesStats_one-to-one`, OrthologuesStats_Totals, df, k, min_diags, new_orthologuestats_total, sc, normalized_heatmap_data, Duplications_per_Orthogroup, Duplications_per_Species_Tree_Node, heatmap_data, df_filtered)
+rm(Orthogroups.GeneCount, Orthogroups_SpeciesOverlaps)
+```
+
+
+# Orthogroups
+
+```{r}
+Orthogroups <- read.csv("../results/Results_Aug23/Phylogenetic_Hierarchical_Orthogroups/N0.tsv", sep = "\t", na.strings = "")
+
+#No outgroups
+HOG_N2 <- read.csv("Select_Hierarchical_Orthogroups/N2.tsv", sep = "\t", na.strings = "")
+```
+
+## Finding the orthogroups with one species 
+We  have a max of 4 strain of the same species, so all orthogroups with more than 4 samples are excluded (this makes comp. a little easier than immediately looking for rows with only one species present)
+```{r}
+na_counts <- rowSums(is.na(Orthogroups))
+dim(Orthogroups)[2]
+min_na <- dim(Orthogroups)[2]-5
+max_na <- min_na + 3
+# 63-5 = 59 - 62
+# 57-5 = 53 - 56 
+small_ortho_groups <- Orthogroups[na_counts >= min_na & na_counts <= max_na, ]
+
+#small_ortho_groups <- Orthogroups
+```
+
+
+Renaming 
+```{r}
+small_ortho_groups <- sapply(small_ortho_groups, function(x) sub("\\|.*", "", x), simplify = FALSE)
+
+small_ortho_groups <- as.data.frame(small_ortho_groups)
+
+small_ortho_group2 <- small_ortho_groups[4:length(small_ortho_groups)] 
+
+rown <- colnames(small_ortho_group2)
+rown1 <- sub("\\..*", "", rown) #keep numbers but get rid of everything after the first period . 
+rown2 <- sub("^([^_]+_[^_]+).*", "\\1", rown1)
+
+rown2
+
+colnames(small_ortho_group2) <- make.unique(rown2)
+
+
+small_ortho_group2 <- small_ortho_group2 %>%
+  setNames(make.names(names(.)))
+```
+
+
+Rename outgroups
+```{r}
+#Depends on the columns with outgrs ofc 
+
+outgr_df <- data.frame(small_ortho_group2[1], small_ortho_group2[36])
+
+#for loop to replace all non NA with the column name instead of the accession for future analysis
+for (col in names(outgr_df)) {
+  # Find non-NA values in the column
+  non_na_indices <- !is.na(outgr_df[[col]])
+  
+  # Replace non-NA values with the column name
+  outgr_df[[col]][non_na_indices] <- col
+}
+
+outgr_df[2]
+small_ortho_group2[1] <- outgr_df[1] #Blastoclasiella
+small_ortho_group2[36] <- outgr_df[2] #Radiomyces
+
+```
+
+
+```{r}
+small_ortho_group2$Orthogroup <- small_ortho_groups$OG
+
+
+test_og_df <- small_ortho_group2 %>% group_by(Orthogroup) %>% summarise(across(everything(), ~ if(all(is.na(.))) NA else unique(na.omit(.))))
+
+test_og_df <- test_og_df %>%  rowwise() %>% 
+  mutate(unique_count = sum(!is.na(unique(c_across(-Orthogroup)))))
+         
+test_long <- test_og_df %>% pivot_longer(cols = names(test_og_df)[2:57], names_to = 'Sample', values_to = "present")
+  
+head(test_long)  
+
+sp_test <- test_long %>% filter(unique_count == 1) 
+table(sp_test$present)
+
+
+sum(test_og_df$unique_count == 1)
+
+species_ogs <- unique(sp_test$Orthogroup)
+
+
+```
+
+
+Now we have a dataframe with a whole lot of missing values, we want to concatenate it and remove NAs. 
+
+Make 4 new columns and collect the non-missing values from each row in these new columns.
+```{r}
+
+small_ortho_gr <- small_ortho_group2[1:(length(small_ortho_group2)-1)] %>%
+  rowwise() %>%
+  mutate(
+    non_missing_values = list(na.omit(c_across(everything()))),
+    new_col1 = non_missing_values[1],
+    new_col2 = ifelse(length(non_missing_values) >= 2, non_missing_values[2], NA),
+    new_col3 = ifelse(length(non_missing_values) >= 3, non_missing_values[3], NA),
+    new_col4 = ifelse(length(non_missing_values) >= 4, non_missing_values[4], NA)
+  ) %>%
+  select(-non_missing_values)  # Remove the intermediate column
+
+```
+
+
+Adding the numbers of the orthogroups back as a column, and count the nr. of unique species in each row
+```{r}
+orthogr_df1 <- data.frame('HOG'=small_ortho_groups$HOG, 'orthogroup'=small_ortho_groups$OG,
+                         small_ortho_gr[(length(small_ortho_gr)-3):(length(small_ortho_gr))])
+```
+
+
+Species specific orthogroups 
+```{r}
+species_spec_orthogr_df <- orthogr_df1 %>%
+  rowwise() %>%
+  mutate(
+    unique_count = length(unique(na.omit(c_across(new_col1:new_col4)))),
+    multi_sample = (length(na.omit(c_across(new_col1:new_col4)))>1&unique_count==1)
+    )
+
+rm(small_ortho_group2, small_ortho_groups, small_ortho_gr)
+```
+
+Finally - overview of which orthogroups contain of only one species
+select the rows with just one unique species, and give the summary of the resulting df. 
+```{r}
+final_orthogr <- species_spec_orthogr_df %>%
+  filter(unique_count == 1) %>%
+  select(c('HOG', 'new_col1', 'multi_sample'))
+
+#Nr. of species specific orthogroups
+length(unique(final_orthogr$new_col1))
+
+names(final_orthogr)[2] <- "Species"
+#How many species-specific orthogroups are there? 
+table(final_orthogr$Species)
+
+#Multi sample orthogroups
+
+final_orthogr_multi <- species_spec_orthogr_df %>%
+  filter(unique_count == 1 & multi_sample == TRUE) %>%
+  select(c('HOG', 'new_col1', 'multi_sample'))
+
+#Nr. of species specific orthogroups
+length(unique(final_orthogr_multi$new_col1))
+
+names(final_orthogr_multi)[2] <- "Species"
+
+#How many species-specific multi-sample orthogroups are there? 
+table(final_orthogr_multi$Species)
+
+
+```
+
+When needed write this dataframe to a file to use later on and in comparisons
+```{r}
+write.csv(final_orthogr,
+          "species_specific_orthogroups.csv",
+          row.names = FALSE)
+```
+
+Visualize in plot
+```{r}
+table(final_orthogr[2:3])
+
+ggplot(final_orthogr, aes(x=Species, fill=multi_sample))+
+  geom_bar(width = 0.7,  alpha=0.8)+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  labs(x = "Species", y = "Number of species-specific orthogroups", title = "Species-specific orthogroups")
+
+```
+
+Pichia has sig higher amounts of OGs because we have two of the same sample most likely, and these would share OG on pretty much all of their genes ..  
+
+Visualizing which species are in each orthogroup - takes a while
+```{r}
+#For toy runs, as the full data takes some procc time
+#sampl = sample(dim(Orthogroups)[1], 1000)
+#sect <- Orthogroups[sampl,]
+
+sect <- Orthogroups
+
+#Rename outgroups
+
+#Depends on the columns with outgrs ofc 
+
+names(sect)
+outgr_df <- data.frame(sect[4], sect[39])
+
+#for loop to replace all non NA with the column name instead of the accession for future analysis
+for (col in names(outgr_df)) {
+  # Find non-NA values in the column
+  non_na_indices <- !is.na(outgr_df[[col]])
+  
+  # Replace non-NA values with the column name
+  outgr_df[[col]][non_na_indices] <- col
+}
+sect[4] <- outgr_df[1]
+sect[39] <- outgr_df[2]
+
+head(sect[39])
+```
+
+
+```{r}
+sect$OG <- NULL
+sect$Gene.Tree.Parent.Clade <- NULL
+
+sect <- sect %>% pivot_longer(cols = names(sect[2:length(sect)]), values_to = 'ort', names_to = 'redun')
+
+sect$redun <- NULL
+sect <- na.omit(sect)
+rm(processed_names)
+
+processed_names <- sapply(sect$ort, function(x) strsplit(x, "[|]")[[1]][1])
+samples <- sapply(sect$ort, function(x) strsplit(x, "[|]")[[1]][2])
+
+head(processed_names)
+sect$ort <- processed_names
+sect$sample <- samples
+
+sect$name <- paste(sect$ort, sect$sample, sep="_")
+
+HOG_nr <- as.numeric(sub("N0.HOG", "", sect$HOG))
+sect$HOG_nr <- HOG_nr
+
+# #list2 <- unique(sect$sample)
+# list2[!list2 %in% list1]
+# list1 <- unique(sect$sample)
+# 
+# list1 <- as.numeric(list1)
+# list2 <- as.numeric(list2)
+# 
+# print(sort(list1))
+# print(sort(list2))
+
+ggplot(sect, aes(x = HOG_nr, y = name))+
+  geom_point(shape = 108, size = 2.4, colour = "grey30")+
+  theme_bw()#+
+#  theme(axis.title.x=element_blank(),
+#        axis.text.x=element_blank(),
+#        axis.ticks.x=element_blank())
+  
+  
+```
+
+
+
+```{r}
+rm(final_orthogr, final_orthogr_multi, Orthogroups_SpeciesOverlap, stat_df, orthogr_df1, outgr_df)
+
+rm(y_values, rown, rown1, rown2, samples, non_na_indices, na_counts, min_na, max_na,col, df_name, file, folder_path, unique_fill_values, processed_names, HOG_nr, tsv_files)
+
+```
+
+
+
+##Taxonomic group specific orthogroups
+
+
+### order-specific - maybe change to families to fit with the first overview plot
+We have max 
+```{r}
+
+rown <- colnames(Orthogroups[4:59])
+rown2 <- sub("^([^.]+).*", "\\1", rown)
+rown2
+
+colnames(Orthogroups)[4:59] <- rown2
+
+Orthogroups <- Orthogroups %>%
+  setNames(make.names(names(.)))
+
+# Orthogroups <- Orthogroups %>% select(-any_of(excl))
+
+#for sure we have most of trichophyton spp. 
+sum(startsWith(colnames(Orthogroups), "Trichop"))
+#alright so orthogrs with at most 17 species. 
+
+```
+
+
+```{r}
+na_counts <- rowSums(is.na(Orthogroups))
+dim(Orthogroups)[2]
+min_na <- dim(Orthogroups)[2]-17
+max_na <- min_na + 18 - 3
+
+small_ortho_groups <- Orthogroups[na_counts >= min_na & na_counts <= max_na, ]
+
+#small_ortho_groups <- Orthogroups #for the venn diagrams including all orthogrs
+
+```
+
+
+Rename outgroups
+```{r}
+#Depends on the columns with outgrs ofc 
+
+outgr_df <- data.frame(small_ortho_groups[4], small_ortho_groups[39])
+
+#for loop to replace all non NA with the column name instead of the accession for future analysis
+for (col in names(outgr_df)) {
+  # Find non-NA values in the column
+  non_na_indices <- !is.na(outgr_df[[col]])
+  
+  # Replace non-NA values with the column name
+  outgr_df[[col]][non_na_indices] <- col
+}
+
+head(outgr_df[2])
+small_ortho_groups[4] <- outgr_df[1] #Blastoclasiella
+small_ortho_groups[39] <- outgr_df[2] #Radiomyces
+```
+
+
+
+Renaming 
+```{r}
+small_ortho_groups <- sapply(small_ortho_groups, function(x) sub("\\|.*", "", x), simplify = FALSE)
+
+small_ortho_groups <- as.data.frame(small_ortho_groups)
+
+small_ortho_group2 <- small_ortho_groups[4:length(small_ortho_groups)] 
+
+#rename nakaseomyces
+
+small_ortho_group2$Nakaseomyces_glabratus_138 <- gsub("Candida_glabrata", "Nakaseomyces_glabratus", small_ortho_group2$Nakaseomyces_glabratus_138)
+
+
+```
+
+
+Now we have a dataframe with a whole lot of missing values, we want to concatenate it and remove NAs. 
+
+Make 4 new columns and collect the non-missing values from each row in these new columns.
+```{r}
+#find the max nr of entries in a row for the following
+maxnonna <- max((rowSums(!is.na(small_ortho_group2))))
+max_non_na_lst <- apply(!is.na(small_ortho_group2), 1, sum)
+
+#We are just counting the number of NAs in a row, not which species or if they are from the same groups. 
+min(max_non_na_lst)
+
+# Create a new dataframe with the maximum number of columns
+new_df <- data.frame(matrix(NA, nrow = nrow(small_ortho_group2), ncol = maxnonna))
+
+# Assign non-NA values from the original dataframe to the new dataframe
+for (i in 1:nrow(small_ortho_group2)) {
+  new_df[i, 1:max_non_na_lst[i]] <- small_ortho_group2[i, !is.na(small_ortho_group2[i, ])]
+}
+new_df_species <- new_df
+new_df[] <- lapply(new_df, function(x) sub("_.*", "", x))
+```
+
+
+Adding the numbers of the orthogroups back as a column, and count the nr. of unique species in each row
+```{r}
+orthogr_df <- data.frame('HOG'=small_ortho_groups$HOG, 'orthogroup'=small_ortho_groups$OG,
+                         new_df)
+
+orthogr_df <- orthogr_df %>%
+  rowwise() %>%
+  mutate(
+    multi_genus = length(unique(na.omit(c_across(X1:X14))))>=2 #,
+   # multi_genus = (length(na.omit(c_across(X1:X17)))>1)
+    )
+```
+
+Renaming to group names, then counting group-specific orthogroups  
+```{r}
+
+#Rename these to family names instead of order !! 
+
+rename_dict <- c('Candida' = "Saccharomycetaceae", "Torulaspora" = "Saccharomycetaceae", "Nakaseomyces" = "Saccharomycetaceae", "Pichia" = "Saccharomycetaceae", "Saccharomyces" = "Saccharomycetaceae", "Kazachstania" = "Saccharomycetaceae",
+                 'Hortaea' = "Teratosphaeriaceae", 'Elasticomyces' = "Teratosphaeriaceae", 'Friedmanniomyces' = "Teratosphaeriaceae", 'Recurvomyces' = "Teratosphaeriaceae",
+                 'Trichophyton' = "Anthrodermatacaea", 'Ophidiomyces' = "Anthrodermatacaea", 'Uncinocarpus' = "Anthrodermatacaea",	
+'Ascosphaera' = "Onygenales", 'Microsporum' = "Anthrodermatacaea", 'Nannizzia' = "Anthrodermatacaea", 'Epidermophyton' = "Anthrodermatacaea", 
+'Trichosporon' = "Trichosporonaceae", 'Apiotrichum' = "Trichosporonaceae", 'Vanrija' = "Trichosporonaceae", 'Kwoniella' = "Tremellomycetes",
+                  'Malassezia' = "Malasseziaceae", 'Ustilago' = "Ustilaginomycotina", 'Violaceomyces' = "Ustilaginomycotina", 'Tilletia' = "Ustilaginomycotina")
+
+print(rename_dict)
+
+```
+
+```{r}
+df1 <- new_df
+
+for (col in names(df1)) {
+  # Find non-NA values in the column
+  non_na_indices <- !is.na(df1[[col]])
+  
+  # Replace non-NA values with the corresponding value from the dictionary
+  df1[[col]][non_na_indices] <- rename_dict[df1[[col]][non_na_indices]]
+}
+
+lst <- rowSums(!is.na(df1))
+new_df[which(lst == 0),]
+
+orthogr_df2 <- data.frame('HOG'=small_ortho_groups$HOG, df1)
+```
+
+Count unique groups in each row 
+```{r}
+orthogr_df2 <- orthogr_df2 %>%
+  rowwise() %>%
+  mutate(
+    unique_count = length(unique(na.omit(c_across(X1:X14)))),
+    multi_sample = (length(na.omit(c_across(X1:X14)))>1&unique_count==1)
+    )
+```
+
+
+```{r}
+orthogr_df2$genus_multisample <- orthogr_df$multi_genus
+
+final_orthogr2 <- orthogr_df2 %>%
+  filter(unique_count == 1 ) %>% #& multi_sample == TRUE
+  select(c('HOG', 'X1', 'multi_sample', 'genus_multisample'))
+
+#Nr. of groups with group specific orthogroups
+length(unique(final_orthogr2$X1))
+
+names(final_orthogr2)[2] <- "Group"
+#How many order-specific orthogroups are there? 
+table(final_orthogr2$Group)
+
+```
+
+
+```{r}
+table(final_orthogr2[2:4])
+
+#Removing the outgroups
+final_orthogr2 <- final_orthogr2 %>% filter(!is.na(Group))
+
+p1 <- ggplot(final_orthogr2)+
+  geom_bar(aes(x=Group, fill = multi_sample), width = 0.7,  alpha=0.8)+
+  geom_bar(aes(x=Group, fill = genus_multisample), width = 0.7,  alpha=0.8)+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  labs(x = "Family", y = "Number of family-specific orthogroups", title = "Family-specific orthogroups", fill = "Multi genus, Multi sample")
+
+p1
+
+
+ggsave("family_specific_OGs.png",plot = p1, device = "png", dpi = 300)
+
+```
+
+
+```{r}
+write.csv(final_orthogr2,
+          "family_specific_orthogroups.csv",
+          row.names = FALSE)
+```
+
+
+
+###Genus-specific orthogroups 
+
+```{r}
+orthogr_df <- data.frame('HOG'=small_ortho_groups$HOG, 'orthogroup'=small_ortho_groups$OG,
+                         new_df)
+
+orthogr_df <- orthogr_df %>%
+  rowwise() %>%
+  mutate(
+    unique_count = length(unique(na.omit(c_across(X1:X14)))),
+    multi_sample = (length(na.omit(c_across(X1:X14)))>1&unique_count==1)
+    )
+
+#rm(small_ortho_group2, small_ortho_groups, small_ortho_gr)
+```
+
+
+Finally - overview of which orthogroups contain of only one species
+select the rows with just one unique species, and give the summary of the resulting df. 
+```{r}
+final_orthogr <- orthogr_df %>%
+  filter(unique_count == 1 ) %>% #& multi_sample == TRUE
+  select(c('HOG', 'X1', 'multi_sample'))
+
+#Nr. of species specific orthogroups
+length(unique(final_orthogr$X1))
+
+names(final_orthogr)[2] <- "Genus"
+#How many species-specific orthogroups are there? 
+table(final_orthogr$Genus)
+
+```
+
+When needed write this dataframe to a file to use later on and in comparisons
+```{r}
+write.csv(final_orthogr,
+          "genus_specific_orthogroups.csv",
+          row.names = FALSE)
+```
+
+Visualize in plot
+```{r}
+table(final_orthogr[2:3])
+
+final_orthogr_no_outgr <- final_orthogr %>% filter(!Genus=="Blastocladiella") %>% filter(!Genus=="Radiomyces")
+
+
+p2 <- ggplot(final_orthogr_no_outgr, aes(x=Genus, fill = multi_sample))+
+  geom_bar(width = 0.7,  alpha=0.8)+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  labs(x = "Genera", y = "Number of genus-specific orthogroups", title = "Genus-specific orthogroups")
+
+p2
+
+#ggsave("Genus_specific_OGs.png",plot = p2, device = "png", dpi = 300)
+
+```
+
+
+### Species specific orthogroups
+
+```{r}
+orthogr_df <- data.frame('HOG'=small_ortho_groups$HOG, 'orthogroup'=small_ortho_groups$OG,
+                         new_df_species)
+
+orthogr_df <- orthogr_df %>%
+  rowwise() %>%
+  mutate(
+    unique_count = length(unique(na.omit(c_across(X1:X14)))),
+    multi_sample = (length(na.omit(c_across(X1:X14)))>1&unique_count==1)
+    )
+
+final_orthogr <- orthogr_df %>%
+  filter(unique_count == 1 ) %>% #& multi_sample == TRUE
+  select(c('HOG', 'X1', 'multi_sample'))
+
+#Nr. of species specific orthogroups
+length(unique(final_orthogr$X1))
+
+names(final_orthogr)[2] <- "Species"
+#How many species-specific orthogroups are there? 
+table(final_orthogr$Species)
+
+```
+
+```{r}
+write.csv(final_orthogr,
+          "species_specific_orthogroups.csv",
+          row.names = FALSE)
+```
+
+Visualize in plot
+```{r}
+table(final_orthogr[2:3])
+
+final_orthogr_no_outgr <- final_orthogr %>% filter(!Species=="Blastocladiella_emersonii") %>% filter(!Species=="Radiomyces_spectabilis")
+
+
+p3 <- ggplot(final_orthogr, aes(x=Species, fill = multi_sample))+
+  geom_bar(width = 0.7,  alpha=0.8)+
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))+
+  labs(x = "Species", y = "Number of species-specific orthogroups", title = "Species-specific orthogroups")+
+   theme(plot.margin = margin(0.2,0.2,0.5,1, "cm"))
+
+p3
+
+#ggsave("Species_specific_OGs.png",plot = p3, device = "png", dpi = 300)
+
+```
+
+
+
+## Venn digrams of shared orthogrs. 
+Remember to re-make small_ortho_groups to contain all rows and not just the ones with a specific nr. of species. 
+
+```{r}
+OGs <- sapply(Orthogroups, function(x) sub("\\|.*", "", x), simplify = FALSE)
+OGs <- as.data.frame(OGs)
+
+rown <- colnames(OGs[4:59])
+rown1 <- sub("\\..*", "", rown) #keep numbers but get rid of everything after the first period . 
+rown2 <- sub("^([^_]+_[^_]+).*", "\\1", rown1)
+rown2
+
+names(OGs)[4:59] <- rown1
+
+OGs$Nakaseomyces_glabratus_138 <- gsub("Candida_glabrata", "Nakaseomyces_glabratus", OGs$Nakaseomyces_glabratus_138)
+OGs$Trichophyton_menthagrophytes_43573 <- gsub("menthagrophytes", "mentagrophytes", OGs$Trichophyton_menthagrophytes_43573)
+
+names(OGs)[43] <- "Trichophyton_mentagrophytes_43573"
+
+OGs_long <- pivot_longer(OGs, cols = colnames(OGs[4:59]), names_to = "Sample", values_to = "Present", values_drop_na = TRUE)
+OGs_long <- OGs_long %>% mutate(Genus = sub("_.*", "", Sample)) 
+
+#renaming present to the sample name at the outgroups 
+OGs_long$Present <- ifelse(str_detect(OGs_long$Present, "KAI"), 
+                           OGs_long$Sample, 
+                           OGs_long$Present)
+
+OGs_long <- OGs_long %>% mutate(Species = sub("^([^_]+_[^_]+).*", "\\1", Sample)) 
+outgr_species_names <- c("Radiomyces_spectabilis", "Blastocladiella_emersonii_22665")
+outgr_genus_names <- c("Radiomyces", "Blastocladiella")
+
+excl_HOG <- OGs_long[OGs_long$Sample %in% outgr_species_names,]$HOG
+OGs_long_no_outgr <- OGs_long %>% filter(!HOG %in% excl_HOG)
+length(unique(OGs_long_no_outgr$HOG))
+
+#How many HOGs are removed - ie. how many had outgroups in them 
+length(unique(OGs_long$HOG)) - length(unique(OGs_long_no_outgr$HOG))
+
+
+OGs_long_no_outgr$Gene.Tree.Parent.Clade <- NULL
+OGs_long_no_outgr$Present <- NULL
+
+OG_df <- split(OGs_long_no_outgr$HOG, f = OGs_long_no_outgr$Genus)
+OG_df_w_outgr <- split(OGs_long$HOG, f = OGs_long$Genus)
+
+OG_df_species <- split(OGs_long$HOG, f = OGs_long$Species)
+
+venn_df <- OG_df_species
+
+venn_genera <- split(OGs_long$HOG, f = OGs_long$Genus)
+```
+
+plots
+```{r}
+library("ggVennDiagram")
+
+#c("slategray2", "#404e67","#809bce","#9887D9" , "#d1625c", "#ffd6a5", "#e89c81"))
+
+sc <-   scale_fill_gradient2(
+  high = "#cfe6ff",
+  mid  = "#404e67",
+  space = "Lab",
+  na.value = "grey50",
+  guide = "colourbar",
+  aesthetics = "fill"
+)
+
+#We have to pull out certain ones here, as we can't make a venn diagram with 10 different. 
+
+c(venn_df[1], venn_df[5])
+
+ggVennDiagram(venn_df[1:5], label_alpha = 0, label_color = "White", label = "count", label_size = 5.5) + sc + scale_x_continuous(expand = expansion(mult = .3)) #+ theme(plot.margin = unit(c(50, 50, 50, 50), "mm")) 
+
+
+p <- ggVennDiagram(c(venn_df[2], venn_df[3], venn_df[4], venn_df[13], venn_df[15]), label_alpha = 0, label_color = "White", label = "count", label_size = 5.5) + sc + scale_x_continuous(expand = expansion(mult = .3))
+plot(p)
+
+#venn_df[1],
+
+p <- ggVennDiagram(c(venn_df[7], venn_df[8], venn_df[9]), label_alpha = 0, label_color = "White", label = "count", label_size = 5.5) + sc + scale_x_continuous(expand = expansion(mult = .3)) 
+plot(p)
+
+
+p <- ggVennDiagram(c(venn_df[17], venn_df[18], venn_df[19], venn_df[20], venn_df[21], venn_df[1]), label_alpha = 0, label_color = "White", label = "count", label_size = 5.5) + sc + scale_x_continuous(expand = expansion(mult = .3)) 
+plot(p)
+
+
+#Basidiomycota
+p <- ggVennDiagram(c(venn_genera[1], venn_genera[5], venn_genera[12], venn_genera[10]), label_alpha = 0, label_color = "White", label = "count", label_size = 5.5) + sc + scale_x_continuous(expand = expansion(mult = .2)) #+ theme(plot.margin = unit(c(50, 50, 50, 50), "mm")) 
+plot(p)
+
+
+#ggsave("Can_nak_pich_venn.png",plot = p, device = "png", dpi = 300, width = 8.7, height = 7, units = "in")
+?ggsave
+
+
+p <- ggVennDiagram(c(venn_df[3], venn_df[6], venn_df[8], venn_df[11], venn_df[1]), label_alpha = 0, label_color = "White", label = "count", label_size = 5.5) + sc + scale_x_continuous(expand = expansion(mult = .2)) #+ theme(plot.margin = unit(c(50, 50, 50, 50), "mm")) 
+
+plot(p)
+#ggsave("dermatophytes_venn.png",plot = p, device = "png", dpi = 300, width = 8.7, height = 6.4, units = "in")
+
+
+p <- ggVennDiagram(c(venn_df[2], venn_df[7], venn_df[9], venn_df[1]), label_alpha = 0, label_color = "White", label = "count", label_size = 5.5) + sc + scale_x_continuous(expand = expansion(mult = .2)) #+ theme(plot.margin = unit(c(50, 50, 50, 50), "mm")) 
+
+plot(p)
+
+#ggsave("Saccharo_venn.png",plot = p, device = "png", dpi = 300, width = 8.7, height = 6.4, units = "in")
+```
+
+
+### Upset-plot 
+Better way to visualise relationships between groups when we have more than ~5, as venn diagrams become too busy 
+
+
+```{r}
+library(UpSetR)
+
+#Make a binary matrix for the upset plot
+all_ogs <- unique(unlist(venn_genera))  # Get all unique OGs
+binary_matrix <- ifelse(sapply(venn_genera, function(group) all_ogs %in% group), 1, 0)
+rownames(binary_matrix) <- all_ogs  # Set row names to OGs
+
+binary_df <- as.data.frame(binary_matrix)
+#binary_df$Radiomyces <- NULL
+
+colnames(binary_df)
+
+incl <- c( #"Blastocladiella" ,
+           "Candida",
+          "Epidermophyton",
+           "Hortaea", 
+           "Malassezia",
+           "Microsporum",
+           "Nakaseomyces",
+           "Nannizzia",
+           "Pichia",
+          "Radiomyces",
+           "Trichophyton",
+           "Trichosporon" )
+
+new_bin <- binary_df %>% select(all_of(incl))
+new_bin <- new_bin[, c(names(new_bin)[0], "Radiomyces", names(new_bin)[-c(0, which(names(new_bin) == "Radiomyces"))])] #moving radiomyces next to the other outgroup
+head(new_bin, 3)
+#sum(rowSums(new_bin) == 10)
+# 
+#   "#979797", , "#76A1F1",, "#7DCF7E", "#96FBEA", , , , , "#d5da97",,, , "#A27E31", 
+#  "#D67238","#de8f49", "#FF8A67","#7fa9a7" , "", "#D66161", "#FF7066", "#e89c81"
+#"#AA9F40",
+pall_upset <- c("#C88080", "#E44242",  "#DBD40F", "#E9F466",  "#B0EE86","#8AD1B6", "#A3E1EF", "#9DC8FF", "#6585BD",  "#404e67", "#9C5BA2")
+
+pall_new <- c("slategray2", "#404e67","#809bce","#9887D9" ,"#DB9FF6",  "#802F2F","#420602", "#F1E06B", "#d3ecc4", "#528753", "#515251")
+
+pall_upset <- rev(pall_upset)
+
+ # pall2_12 <- c("#C88080" , "#9B2603", "#ffd6a5"  ,  "#d5da97" ,  "#7eb77f"  ,"#ecffc3",   , ,
+ #               ,  "#809bce"  ,  "slategray2" ,"#ABA9D6"  ,  "")
+ 
+head(new_bin)
+
+pdf("2402_Upset_plot.pdf", onefile = FALSE, width = 14, height = 7)
+
+upset(new_bin,
+      sets = colnames(new_bin), 
+      nsets = length(new_bin), 
+      nintersects = 17, 
+      order.by = "freq",
+      sets.bar.color = pall_upset, 
+      text.scale = 2, 
+      point.size = 3,
+      mb.ratio	= c(0.5, 0.5),
+      keep.order = TRUE)
+
+dev.off()
+
+```
+
+
+## Heatmaps 
+
+```{r}
+df_unique <- OGs_long_no_outgr %>%
+  distinct(HOG, Species)
+
+# Create a table indicating the presence of each genus in each orthogroup
+df_presence <- df_unique %>%
+  group_by(HOG) %>%
+  summarise(Species_list = list(Species))
+
+# Create a long format of pairs of genera sharing the same orthogroup
+df_pairs <- df_presence %>%
+  unnest(Species_list) %>%
+  rename(Species1 = Species_list) %>%
+  left_join(df_presence %>% unnest(Species_list) %>% rename(Species2 = Species_list), by = "HOG") %>%
+#  filter(Species1 != Species2) %>%
+  group_by(Species1, Species2) %>%
+  summarise(Shared_Orthogroups = n(), .groups = 'drop')
+
+# Convert to a wide matrix format
+df_matrix <- df_pairs %>%
+  pivot_wider(names_from = Species2, values_from = Shared_Orthogroups, values_fill = list(Shared_Orthogroups = 0))
+
+# Convert to a numeric matrix for heatmap
+df_matrix <- as.data.frame(df_matrix)
+row.names(df_matrix) <- df_matrix$Species1
+df_matrix <- as.matrix(df_matrix[,-1])
+
+genus_order <- c("Epidermophyton", "Hortaea", "Microsporum", "Nannizzia", "Trichophyton") 
+
+species_order <- c( "Microsporum_audouinii", "Microsporum_canis" ,  "Microsporum_ferrugineum" ,  "Nannizzia_gypsea" ,  "Epidermophyton_floccosum" ,  "Trichophyton_concentricum", "Trichophyton_mentagrophytes", "Trichophyton_rubrum",        "Trichophyton_schoenleinii","Trichophyton_tonsurans" ,    "Trichophyton_verrucosum" ,"Trichophyton_violaceum",  "Hortaea_werneckii", "Candida_dubliniensis", "Candida_parapsilosis", "Candida_tropicalis", "Nakaseomyces_glabratus", "Pichia_kudriavzevii", "Malassezia_furfur", "Malassezia_globosa", "Malassezia_restricta", "Trichosporon_ovoides")
+
+row.names(df_matrix)
+
+# Reorder the matrix according to the specified order
+df_matrix <- df_matrix[species_order, species_order]
+
+rown <- sub("_", " ", row.names(df_matrix))
+row.names(df_matrix) <- rown
+colnames(df_matrix) <- rown
+
+# Plot the heatmap with heatmaply without clustering and with specified order
+heatmaply(
+  df_matrix,
+ # cellnote = df_matrix,
+ # cellnote_textposition = "middle center",
+  scale_fill_gradient_fun = ggplot2::scale_fill_gradient(low = "#404e67", high  = "#cfe6ff"),
+  main = "Shared Orthogroups by species",
+  dendrogram = "none"
+) 
+
+```
+
+
+
+## looking for shared between all but out-groups
+```{r}
+OGs_n <- OGs %>% mutate(total = rowSums(!is.na(OGs[4:59])))
+
+#We have 54 samples in total and 2 outgroups - we want to keep only OGs with 54 samples. then in this subset look for OGs without the two outgroups
+
+OGs_withall <- OGs_n %>% filter(total == 56)
+#write.csv(OGs_withall, "OG_shared_between_all.tsv", sep = "\t")
+OGs_withall <- OGs_withall$OG
+
+
+
+OGs_n <- OGs_n %>% filter(total == 54) %>% filter(is.na(Blastocladiella_emersonii_22665))
+
+no_outgroups <- OGs_n[which(is.na(OGs_n$Radiomyces_spectabilis)),]
+
+no_outgroup_OGs <- no_outgroups$OG
+
+```
+
+
+```{r}
+no_outgroup_eggnog <- full_eggnog[full_eggnog$query %in% no_outgroup_OGs,]
+no_outgroup_eggnog$Description
+
+# write.xlsx(no_outgroup_eggnog, "no_outgroup_OGs_eggnog.xlsx")
+```
+
+Not really interesting genes from the perspective of skin-living adjustment 
+
+
+
+## Closer examination of certain species orthogroups 
+
+```{r}
+E_floc <- multisample_orthogroups_df_list$Epidermophyton_floccosum
+
+#Keep only rows with a result in at least one of the func. annotation columns
+
+filtered_df <- E_floc %>%
+  mutate(has_string = rowSums(!is.na(select(., 6:10)) & select(.,6:10) != "") > 0 ) %>%
+  filter(has_string) %>%
+  select(-has_string)
+  
+unique(filtered_df$HOG)
+```
+
+Collecting gene sequences 
+
+function for getting out gene sequences from annotated fasta files 
+```{r}
+read_gene_sequences <- function(protein_names, fasta_file, sample) {
+  # Read the FASTA file as a character vector
+  fasta_lines <- readLines(fasta_file)
+  
+  # Initialize an empty list to store gene sequences
+  #gene_sequences <- list()
+  
+  result_df <- data.frame(Sample = character(),
+                          FUN = character(),
+                          sequence = character(),
+                          stringsAsFactors = FALSE)
+  
+  # Iterate over protein names
+  for (protein_name in protein_names) {
+    # Find the line number containing the protein name
+    protein_line <- grep(protein_name, fasta_lines, value = TRUE)
+    
+    # If the protein name is found, extract the next line containing the gene sequence
+    if (length(protein_line) > 0) {
+      gene_sequence_line <- fasta_lines[which(fasta_lines == protein_line) + 1]
+      result_df <- rbind(result_df, data.frame(Sample = sample,
+                                               FUN = protein_name, 
+                                               sequence = gene_sequence_line
+                                               ))
+    }
+  }
+  
+  return(result_df)
+}
+
+```
+
+```{r}
+genes_100148 <- filtered_df[filtered_df$Sample == "100148",]$FUN
+
+path = "../../../10_FASTA/Annotated_WGS/purged+excl_54_annotated/Epidermophyton_floccosum_100148.rn.proteins.fa"
+
+# Read gene sequences corresponding to protein names
+gene_sequences1 <- read_gene_sequences(genes_100148, path, '100148')
+
+genes_10867 <- filtered_df[filtered_df$Sample == "10867",]$FUN
+
+path = "../../../10_FASTA/Annotated_WGS/purged+excl_54_annotated/Epidermophyton_floccosum_10867.rn.proteins.fa"
+
+# Read gene sequences corresponding to protein names
+gene_sequences2 <- read_gene_sequences(genes_10867, path, '10867')
+
+genes_130802 <- filtered_df[filtered_df$Sample == "130802",]$FUN
+
+path = "../../../10_FASTA/Annotated_WGS/purged+excl_54_annotated/Epidermophyton_floccosum_130802.purged.rn.fasta"
+
+gene_sequences3 <- read_gene_sequences(genes_130802, path, '130802')
+
+#Need to add sample nr as well - FUN nr are not unique between fasta files 
+sequences <- rbind(gene_sequences1, gene_sequences2, gene_sequences3)
+
+merged_df <- merge(filtered_df, sequences, by = c('Sample', 'FUN'), all.x = TRUE)
+
+rm(genes_100148, genes_10867, genes_130802, gene_sequences1, gene_sequences2, gene_sequences3, t, q, unique_counts)
+```
+
+Find all sequences in the fasta files and add to the dataframe for future analysis - this takes a while and should only be run once - results will be saved in TSV file: 
+```{r}
+df1 <- data.frame(
+  Sample = character(),
+  FUN = character(),
+  sequence = character()
+) 
+
+#sample_lst <- c('1878','7705')
+
+# for (sample in unique(df$Sample)) {
+#   print(sample)
+#   path = paste("new_headers_annotated/", sample, '.fa', sep="")
+#   #print(path)
+#   
+#   fun_list <- df[df$Sample == sample,]$FUN 
+#   
+#   #print(head(fun_list))
+#   
+#   gene_sequences <- read_gene_sequences(fun_list, path, sample)
+#   
+#   print(head(gene_sequences))
+#   
+#   df1 <- rbind(df1, gene_sequences)
+#   
+# }
+```
+
+
+```{r}
+merged_df <- merge(df, df1, by = c("Sample", "FUN"), all.x = TRUE)
+
+#Saved in one big tsv - could also be split up into one df for each sample? 
+#write.csv(merged_df, file = "full_multisample_orthogroups_incl_sequences.tsv")
+
+```
+
+```{r}
+filtered_df <- merged_df %>%
+  mutate(has_string = rowSums(!is.na(select(., 6:10)) & select(.,6:10) != "") > 0 ) %>%
+  filter(has_string) %>%
+  select(-has_string)
+
+```
+
+
+
+
+
+
+# Functional annotations
+
+```{r}
+eggnog_split1 <- read.delim(file = "Func_anno/Eggnog_OG_split_1.emapper.annotations", comment.char = '#', sep ="\t", header = TRUE)
+eggnog_split2 <- read.delim(file = "Func_anno/Eggnog_OG_split_2.emapper.annotations", comment.char = '#', sep ="\t", header = TRUE)
+eggnog_split3 <- read.delim(file = "Func_anno/Eggnog_OG_split_3.emapper.annotations", comment.char = '#', sep ="\t", header = TRUE)
+eggnog_split4 <- read.delim(file = "Func_anno/Eggnog_OG_split_4.emapper.annotations", comment.char = '#', sep ="\t", header = TRUE)
+
+full_eggnog <- rbind(eggnog_split1, eggnog_split2, eggnog_split3, eggnog_split4)
+
+```
+
+
+```{r}
+GO <- c('GO:0004252')
+EC <- c("3.4") #all peptidases - the more numbers the more specific 
+
+interest <- full_eggnog[grepl("^3.4", full_eggnog$EC), ]
+
+interest_genec <- OG_genecounts[OG_genecounts$Orthogroup %in% interest$query,]
+interest_genec$Radiomyces_spectabilis.proteins <- NULL
+interest_genec$Blastocladiella_emersonii_22665.proteins <- NULL
+
+interest_genec$COG <- substr(interest$COG_category, 1, 1)
+#interest_genec$Total <- NULL
+interest_genec$dist <- NULL
+
+heatmaply(interest_genec[1:50,2:55])
+
+interest_genec$pfam <- interest$PFAMs
+int_genec_separated <- interest_genec %>%
+  separate_rows(pfam, sep = ",")
+
+pfam_summarised <- int_genec_separated %>%
+  group_by(pfam) %>%
+  summarise(across(2:56, sum, na.rm = TRUE),
+            Orthogroup = paste(unique(Orthogroup), collapse = ","))
+
+pfam_hm <- as.data.frame(pfam_summarised)
+row.names(pfam_hm) <- pfam_hm$pfam
+pfam_hm$pfam <- NULL
+
+cnames <- colnames(pfam_hm)
+cnames <- sub("\\..*", "", cnames)
+
+colnames(pfam_hm) <- cnames
+
+pfam_ordered <- pfam_hm %>%
+  arrange(desc(Total))
+
+
+heatmaply(pfam_ordered[,1:54], dendrogram = 'none')
+
+
+```
+
+```{r}
+OG_genecounts$Radiomyces_spectabilis.proteins <- NULL
+OG_genecounts$Blastocladiella_emersonii_22665.proteins <- NULL
+OG_genecounts$dist <- NULL
+
+cnames <- colnames(OG_genecounts)
+cnames <- sub("\\..*", "", cnames)
+colnames(OG_genecounts) <- cnames
+```
+
+
+```{r}
+interest <- full_eggnog[grepl("Peptidase_S8", full_eggnog$PFAMs), ]
+
+interest_genec <- OG_genecounts[OG_genecounts$Orthogroup %in% interest$query,]
+
+
+interest_genec$pfam <- interest$PFAMs
+
+#interest_genec$pfam <- sub("\\,.*", "", interest_genec$pfam)
+
+pfam_summarised_S8 <- interest_genec %>%
+#  group_by(pfam) %>%
+  summarise(across(2:56, sum, na.rm = TRUE),
+            Orthogroup = paste(unique(Orthogroup), collapse = ","))
+
+```
+
+
+```{r}
+interest_m <- full_eggnog[grepl("Peptidase_M", full_eggnog$PFAMs), ]
+
+interest_genec <- OG_genecounts[OG_genecounts$Orthogroup %in% interest_m$query,]
+
+interest_genec$pfam <- interest_m$PFAMs
+
+#interest_genec$pfam <- sub("\\,.*", "", interest_genec$pfam)
+
+pfam_summarised_M <- interest_genec %>%
+#  group_by(pfam) %>%
+  summarise(across(2:56, sum, na.rm = TRUE),
+            Orthogroup = paste(unique(Orthogroup), collapse = ","))
+
+
+```
+
+
+
+
+COG visualization
+```{r}
+full_COG_df <- OG_genecounts[OG_genecounts$Orthogroup %in% full_eggnog$query,]
+full_COG_df$COG <- substr(full_eggnog$COG_category, 1, 1)
+full_COG_df$Total <- NULL
+full_COG_df$dist <- NULL
+
+full_COG_df$Radiomyces_spectabilis.proteins <- NULL
+full_COG_df$Blastocladiella_emersonii_22665.proteins <- NULL
+
+table(full_COG_df$COG)
+
+COG_summary <- full_COG_df[2:56] %>% group_by(COG) %>% summarise(across(everything(), sum))
+
+
+COG_long <- COG_summary %>% pivot_longer(cols = -COG, values_to = 'Gene_count', names_to = 'Sample')
+
+COG_long$Sample <- sub("\\..*", "", COG_long$Sample)
+COG_long$Sample <- sub("_", " ", COG_long$Sample)
+COG_long$Sample <- sub("_", " ", COG_long$Sample)
+
+
+COG_long <- COG_long %>%
+  group_by(Sample) %>%
+  mutate(Percentage = Gene_count / sum(Gene_count) * 100)
+
+```
+
+
+```{r}
+#"#809bce","#443654""#6c6b9c""#404e67"
+pall1 <- c("grey50", "#1C1C42", "#344671","#4B6FA0" ,"#89B2E7", "#7fa9a7", "#7eb77f", "#a8cea9", "#d3ecc4", "#ecffc3", "#d5da97","#AA9F40", "#A27E31","#de8f49", "#D67238", "#C8461E", "#9B2603", "#420602", "#802F2F", "#C88080","#E694BC","#CE70B6" , "#9C5BA2", "#7442A3",  "#9887d0")
+```
+
+```{r}
+leaf_order <- c("Trichosporon_ovoides_9430", "Trichosporon_ovoides_7612", "Trichosporon_ovoides_4098", "Malassezia_furfur_1878","Malassezia_furfur_6000", "Malassezia_furfur_1414029", 
+"Malassezia_furfur_1414015", "Malassezia_restricta_7991","Malassezia_restricta_7877", "Malassezia_globosa_7705","Malassezia_globosa_8744", "Malassezia_globosa_7886", 
+"Pichia_kudriavzevii_57331","Pichia_kudriavzevii_57316",  "Nakaseomyces_glabratus_138", 
+"Nakaseomyces_glabratus_15698","Nakaseomyces_glabratus_11311", "Candida_parapsilosis_11301", "Candida_parapsilosis_1954",  "Candida_tropicalis_94", 
+"Candida_dubliniensis_2747", "Candida_dubliniensis_11945", "Candida_dubliniensis_8501", 
+"Hortaea_werneckii_1163", "Hortaea_werneckii_41051","Hortaea_werneckii_100455",  
+"Microsporum_canis_15669",  "Microsporum_canis_44551", "Microsporum_canis_113480", "Microsporum_audouinii_119449", "Microsporum_audouinii_33268", "Microsporum_ferrugineum_131111", 
+"Microsporum_ferrugineum_37371", 
+"Nannizzia_gypsea_17164", "Epidermophyton_floccosum_130802", "Epidermophyton_floccosum_10867", 
+"Epidermophyton_floccosum_100148", 
+"Trichophyton_schoenleinii_45859", "Trichophyton_schoenleinii_85571", 
+"Trichophyton_mentagrophytes_124404", "Trichophyton_menthagrophytes_43573", 
+"Trichophyton_tonsurans_112188", "Trichophyton_tonsurans_12935","Trichophyton_tonsurans_72988", 
+ "Trichophyton_concentricum_19626","Trichophyton_concentricum_109405", 
+ "Trichophyton_violaceum_73088", "Trichophyton_verrucosum_46059", "Trichophyton_rubrum_117539", "Trichophyton_rubrum_28986", "Trichophyton_violaceum_51763", "Trichophyton_rubrum_73588",  "Trichophyton_rubrum_17065", "Trichophyton_violaceum_120316"
+)
+
+leaf_order <- sub("_", " ", leaf_order)
+leaf_order <- sub("_", " ", leaf_order)
+
+OG_genecounts_species_visu$Species <- factor(OG_genecounts_species_visu$Species, 
+                                          levels = rev(leaf_order))
+
+COG_long$Sample <- factor(COG_long$Sample, levels = rev(leaf_order))
+
+```
+
+
+
+```{r}
+ggplot(COG_long, aes(y = Sample, x = Percentage, fill = COG)) +
+  geom_bar(stat = "identity", position = "stack") + 
+  scale_fill_manual(values = pall1) +
+  theme_minimal() +                                  
+  labs(x = "Sample", y = NULL, fill = "COG Category") #  +
+#  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+
+```
+
+
+
+## interpro results
+
+### reading data
+```{r}
+ipr_split1 <- read.csv(file = "Func_anno/IPR/OG_seqs_split_1.fasta.tsv", sep ="\t", header = FALSE)
+ipr_split2 <- read.csv(file = "Func_anno/IPR/OG_seqs_split_2.fasta.tsv", sep ="\t", header = FALSE)
+ipr_split3 <- read.csv(file = "Func_anno/IPR/OG_seqs_split_3.fasta.tsv", sep ="\t", header = FALSE)
+ipr_split4 <- read.csv(file = "Func_anno/IPR/OG_seqs_split_4.fasta.tsv", sep ="\t", header = FALSE)
+
+full_ipr <- rbind(ipr_split1, ipr_split2, ipr_split3, ipr_split4)
+names(full_ipr)[1] <- 'Orthogroup'
+```
+
+
+```{r}
+OG_genecounts <- read.csv("Comparative_Genomics_Statistics/Orthogroups.GeneCount.tsv", header = TRUE, sep = "\t")
+
+t <- rowSums(OG_genecounts[2:57] > 0)
+100-((sum(t==1)/dim(OG_genecounts)[1])*100)
+
+
+
+ipr_genec <- merge(full_ipr[,c('Orthogroup', 'V12')], OG_genecounts, by = 'Orthogroup', all.x = TRUE)
+ipr_genec <- ipr_genec %>% filter(V12!='-')
+
+namesipr <- names(ipr_genec)
+namesipr <- sub("\\..*", "", namesipr)
+print(namesipr)
+namesipr[2] <- 'IPR'
+
+names(ipr_genec) <- namesipr
+```
+
+groups (genus+family)
+```{r}
+Malassezia     <- namesipr[grepl("^Mala", namesipr)]
+Candida        <- namesipr[grepl("^Cand", namesipr)]
+Microsporum    <- namesipr[grepl("^Micr", namesipr)]
+Trichophyton   <- namesipr[grepl("^Trichop", namesipr)]
+Trichosporon   <- namesipr[grepl("^Trichos", namesipr)]
+Pichia         <- namesipr[grepl("^Pich", namesipr)]
+Nakaseomyces   <- namesipr[grepl("^Naka", namesipr)]
+Epidermophyton <- namesipr[grepl("^Epid", namesipr)]
+Nannizzia      <- namesipr[grepl("^Nann", namesipr)]
+Hortaea        <- namesipr[grepl("^Hort", namesipr)]
+
+Saccharaomyces <- c(Candida, Nakaseomyces, Pichia)
+Arthroderma    <- c(Epidermophyton, Microsporum, Nannizzia, Trichophyton)
+
+genus_dict <- list(
+  Candida = Candida,
+  Malassezia = Malassezia,
+  Microsporum = Microsporum,
+  Trichophyton = Trichophyton,
+  Pichia = Pichia,
+  Nakaseomyces = Nakaseomyces,
+  Epidermophyton = Epidermophyton, 
+  Nannizzia = Nannizzia,
+  Hortaea = Hortaea
+)
+```
+
+
+```{r}
+ipr_summarised <- ipr_genec %>% 
+    group_by(IPR) %>%
+  summarise(across(3:58, sum))
+
+ipr_summarised_long <- pivot_longer(ipr_summarised, cols = 2:56, names_to = 'Sample', values_to = "Gene_number")
+
+ipr_summarised_long$genus <- sub("\\_.*", "", ipr_summarised_long$Sample)
+ipr_summarised_long$species <- sub("(_[^_]+).*", "\\1", ipr_summarised_long$Sample)
+
+```
+
+
+### Choosing which species to include 
+####string detect to choose species 
+```{r}
+ipr_long_Can_Mal <- ipr_summarised_long %>% filter(str_detect(species, "^Mal")|str_detect(species, "^Can")|str_detect(species, "^Nak")|str_detect(species, "^Pic")|str_detect(species, "^Mic")|str_detect(species, "^Tric")|str_detect(species, "^Epi"))
+
+#Exclude the duplicated samples - should use cd-hit before ipr ?? 
+
+ipr_long_Can_Mal <- ipr_long_Can_Mal %>% filter(Sample != "Malassezia_furfur_1878") %>% filter(Sample != "Malassezia_furfur_6000") %>% filter(Sample != "Candida_tropicalis_94") %>% filter(Sample != "Trichosporon_ovoides_9430") %>% filter(Sample != "Epidermophyton_flocossum_100148")
+```
+
+Dermatophytes (vs hortaea)
+```{r}
+ipr_long_der_hor <- ipr_summarised_long %>% filter(str_detect(species, "^Mic")|str_detect(species, "^Trichop")|str_detect(species, "^Epi")|str_detect(species, "^Nan")) #|str_detect(species, "^Hor"))
+```
+
+
+#### all but some (filter)
+```{r}
+sum_means <- ipr_long_Can_Mal %>% group_by(IPR, species) %>% summarise(max = max(Gene_number))
+
+
+ipr_summarised_long_1 <- ipr_summarised_long %>% filter(Sample != "Malassezia_furfur_1878") %>% filter(Sample != "Malassezia_furfur_6000") %>% filter(Sample != "Candida_tropicalis_94") %>% filter(Sample != "Trichosporon_ovoides_9430") %>% filter(Sample != "Epidermophyton_flocossum_100148") %>% filter(Sample != "Hortaea_werneckii_41051") %>% filter(Sample != "Hortaea_werneckii_100455") %>% filter(Sample != "Hortaea_werneckii_1163") %>% filter(Sample != "Radiomyces_spectabilis")
+```
+
+
+```{r}
+sum_means <- ipr_summarised_long_1 %>% group_by(IPR, species) %>% summarise(max = max(Gene_number))
+#sum_means <- ipr_long_der_hor %>% group_by(IPR, species) %>% summarise(max = max(Gene_number))
+
+df_ratios <- sum_means %>%
+  spread(species, max)
+
+names(df_ratios) <- sub("_", " ", names(df_ratios))
+```
+
+#### significance testing 
+dermatophytes vs others (not long and not hortaea)
+```{r}
+
+ipr_summarised_1 <- ipr_summarised %>% select(-"Malassezia_furfur_1878") %>% select(- "Malassezia_furfur_6000") %>% select(-"Candida_tropicalis_94") %>% select(-"Trichosporon_ovoides_9430") %>% select(-"Epidermophyton_floccosum_100148") %>% select(-"Hortaea_werneckii_41051") %>% select(-"Hortaea_werneckii_100455") %>% select(-"Hortaea_werneckii_1163") %>% select(-"Radiomyces_spectabilis")
+
+total_genes_all_species <- sum(colSums(ipr_summarised_1[2:47]))  # Total number of genes across all species
+dermatophyte_columns <- c(names(ipr_summarised[37:53]), names(ipr_summarised[23:29]), names(ipr_summarised[33]), names(ipr_summarised[9:10]))
+
+genes_in_dermatophytes <- rowSums(ipr_summarised_1[, dermatophyte_columns])  # Sum of genes in dermatophytes for each IPR term
+total_genes_dermatophytes <- sum(genes_in_dermatophytes)  # Total number of genes in dermatophytes
+total_genes_not_dermatophytes <- total_genes_all_species - total_genes_dermatophytes
+
+
+# Run hypergeometric test for each IPR term
+p_values <- apply(ipr_summarised_1[2:47], 1, function(row) {
+    q = successes_in_dermatophytes <- sum(row[dermatophyte_columns]) #nr of white balls drawn without replacement 
+    m = total_genes_dermatophytes #The total number of white balls in the urn 
+    n = total_genes_not_dermatophytes #The total numbers of black balls in the urn 
+    k = sum(row) #The number of balls drawn from the urn ie. genes in this row/with this IPR term
+    
+    if (k == 0){
+      return(NA)
+    }
+    
+    phyper(q, m, n, k, lower.tail = FALSE)
+})
+
+p_values_lower <- apply(ipr_summarised_1[2:47], 1, function(row) {
+    q = successes_in_dermatophytes <- sum(row[dermatophyte_columns]) #nr of white balls drawn without replacement 
+    m = total_genes_dermatophytes #The total number of white balls in the urn 
+    n = total_genes_not_dermatophytes #The total numbers of bleck balls in the urn 
+    k = sum(row) #The number of balls drawn from the urn ie. genes in this row/with this IPR term
+    
+    if (k == 0){
+      return(NA)
+    }
+    
+    phyper(q, m, n, k, lower.tail = TRUE)
+})
+
+ipr_pvals <- data.frame('IPR' = ipr_summarised$IPR, 'p_val_upper' = p_values, 'p_val_lower' = p_values_lower)
+ipr_pvals$q_value_upper <- p.adjust(ipr_pvals$p_val_upper, method = "BH")
+ipr_pvals$q_value_lower <- p.adjust(ipr_pvals$p_val_lower, method = "BH")
+
+df_ratios$variance <- apply(df_ratios %>% select(-IPR), 1, var, na.rm = TRUE)
+
+ipr_pvals <- merge(ipr_pvals, data_frame('IPR' = df_ratios$IPR, 'variance' = df_ratios$variance), by = 'IPR')
+
+
+lower_iprs <- head(ipr_pvals[order(ipr_pvals$q_value_lower, -ipr_pvals$variance),]$IPR,10)
+upper_iprs <- head(ipr_pvals[order(-ipr_pvals$variance, ipr_pvals$q_value_upper),]$IPR,20)
+
+iprs_pval_dermatophytes <- c(lower_iprs, upper_iprs)
+```
+
+Candida vs. others
+```{r}
+ipr_summarised_1 <- ipr_summarised %>% select(-"Malassezia_furfur_1878") %>% select(- "Malassezia_furfur_6000")  %>% select(-"Trichosporon_ovoides_9430") %>% select(-"Epidermophyton_floccosum_100148") %>% select(-"Hortaea_werneckii_41051") %>% select(-"Hortaea_werneckii_100455") %>% select(-"Hortaea_werneckii_1163") %>% select(-"Radiomyces_spectabilis")
+
+ipr_summarised_long_1 <- ipr_summarised_long %>% filter(Sample != "Malassezia_furfur_1878") %>% filter(Sample != "Malassezia_furfur_6000") %>% filter(Sample != "Trichosporon_ovoides_9430") %>% filter(Sample != "Epidermophyton_flocossum_100148") %>% filter(Sample != "Hortaea_werneckii_41051") %>% filter(Sample != "Hortaea_werneckii_100455") %>% filter(Sample != "Hortaea_werneckii_1163") %>% filter(Sample != "Radiomyces_spectabilis")
+
+sum_means <- ipr_summarised_long_1 %>% group_by(IPR, species) %>% summarise(max = max(Gene_number))
+#sum_means <- ipr_long_der_hor %>% group_by(IPR, species) %>% summarise(max = max(Gene_number))
+
+df_ratios <- sum_means %>%
+  spread(species, max)
+
+names(df_ratios) <- sub("_", " ", names(df_ratios))
+```
+
+```{r}
+total_genes_all_species <- sum(colSums(ipr_summarised_1[2:48]))  # Total number of genes across all species
+saccharo_columns <- c(names(ipr_summarised_1[2:7]), names(ipr_summarised_1[24:26]), names(ipr_summarised_1[28:29]))
+
+genes_in_saccharo <- rowSums(ipr_summarised_1[, saccharo_columns])  # Sum of genes in dermatophytes for each IPR term
+total_genes_saccharo <- sum(genes_in_saccharo)  # Total number of genes in dermatophytes
+total_genes_not_saccharo <- total_genes_all_species - total_genes_saccharo
+
+
+# Run hypergeometric test for each IPR term
+p_values <- apply(ipr_summarised_1[2:47], 1, function(row) {
+    q = successes_in_saccharo <- sum(row[saccharo_columns]) #nr of white balls drawn without replacement 
+    m = total_genes_saccharo #The total number of white balls in the urn 
+    n = total_genes_not_saccharo #The total numbers of black balls in the urn 
+    k = sum(row) #The number of balls drawn from the urn ie. genes in this row/with this IPR term
+    
+    if (k == 0){
+      return(NA)
+    }
+    
+    phyper(q, m, n, k, lower.tail = FALSE)
+})
+
+p_values_lower <- apply(ipr_summarised_1[2:47], 1, function(row) {
+    q = successes_in_saccharo <- sum(row[saccharo_columns]) #nr of white balls drawn without replacement 
+    m = total_genes_saccharo #The total number of white balls in the urn 
+    n = total_genes_not_saccharo #The total numbers of bleck balls in the urn 
+    k = sum(row) #The number of balls drawn from the urn ie. genes in this row/with this IPR term
+    
+    if (k == 0){
+      return(NA)
+    }
+    
+    phyper(q, m, n, k, lower.tail = TRUE)
+})
+
+saccharo_ipr_pvals <- data.frame('IPR' = ipr_summarised$IPR, 'p_val_upper' = p_values, 'p_val_lower' = p_values_lower)
+saccharo_ipr_pvals$q_value_upper <- p.adjust(saccharo_ipr_pvals$p_val_upper, method = "BH")
+saccharo_ipr_pvals$q_value_lower <- p.adjust(saccharo_ipr_pvals$p_val_lower, method = "BH")
+
+df_ratios$variance <- apply(df_ratios %>% select(-IPR), 1, var, na.rm = TRUE)
+
+saccharo_ipr_pvals <- merge(saccharo_ipr_pvals, data_frame('IPR' = df_ratios$IPR, 'variance' = df_ratios$variance), by = 'IPR')
+
+#How many significant lower - ie. fewer copies in saccharo than the rest 
+sum(saccharo_ipr_pvals[order(saccharo_ipr_pvals$q_value_lower),]$q_value_lower < 0.01, na.rm = TRUE)
+summary(saccharo_ipr_pvals[saccharo_ipr_pvals[order(saccharo_ipr_pvals$q_value_lower),]$q_value_lower < 0.01,]$variance)
+
+lower_iprs <- head(saccharo_ipr_pvals[order(saccharo_ipr_pvals$q_value_lower, -saccharo_ipr_pvals$variance),]$IPR,15)
+
+#how many significant upper - ie. more copies in saccharo than rest
+sum(saccharo_ipr_pvals[order(saccharo_ipr_pvals$q_value_upper),]$q_value_upper < 0.01, na.rm = TRUE)
+summary(saccharo_ipr_pvals[saccharo_ipr_pvals[order(saccharo_ipr_pvals$q_value_upper),]$q_value_upper < 0.01,]$variance)
+
+upper_iprs <- head(saccharo_ipr_pvals[order(saccharo_ipr_pvals$q_value_upper,-saccharo_ipr_pvals$variance),]$IPR,5)
+
+iprs_pval_saccharo <- c(lower_iprs, upper_iprs)
+```
+
+
+Malassezia vs. others
+```{r}
+ipr_summarised_1 <- ipr_summarised  %>% select(-"Trichosporon_ovoides_9430") %>% select(-"Epidermophyton_floccosum_100148") %>% select(-"Hortaea_werneckii_41051") %>% select(-"Hortaea_werneckii_100455") %>% select(-"Hortaea_werneckii_1163") %>% select(-"Radiomyces_spectabilis")
+#%>% select(-"Malassezia_furfur_1878") %>% select(- "Malassezia_furfur_6000") 
+ #%>% filter(Sample != "Malassezia_furfur_1878") %>% filter(Sample != "Malassezia_furfur_6000")
+ipr_summarised_long_1 <- ipr_summarised_long %>% filter(Sample != "Trichosporon_ovoides_9430") %>% filter(Sample != "Epidermophyton_flocossum_100148") %>% filter(Sample != "Hortaea_werneckii_41051") %>% filter(Sample != "Hortaea_werneckii_100455") %>% filter(Sample != "Hortaea_werneckii_1163") %>% filter(Sample != "Radiomyces_spectabilis")
+
+sum_means <- ipr_summarised_long_1 %>% group_by(IPR, species) %>% summarise(max = max(Gene_number))
+#sum_means <- ipr_long_der_hor %>% group_by(IPR, species) %>% summarise(max = max(Gene_number))
+
+df_ratios <- sum_means %>%
+  spread(species, max)
+
+names(df_ratios) <- sub("_", " ", names(df_ratios))
+```
+
+
+```{r}
+total_genes_all_species <- sum(colSums(ipr_summarised_1[2:48]))  # Total number of genes across all species
+Mala_columns <- c(names(ipr_summarised_1[10:18]))
+Mala_columns
+
+genes_in_Mala <- rowSums(ipr_summarised_1[, Mala_columns])  # Sum of genes in dermatophytes for each IPR term
+total_genes_Mala <- sum(genes_in_Mala)  # Total number of genes in dermatophytes
+total_genes_not_Mala <- total_genes_all_species - total_genes_Mala
+
+
+# Run hypergeometric test for each IPR term
+p_values <- apply(ipr_summarised_1[2:50], 1, function(row) {
+    q = successes_in_Mala <- sum(row[Mala_columns]) #nr of white balls drawn without replacement 
+    m = total_genes_Mala #The total number of white balls in the urn 
+    n = total_genes_not_Mala #The total numbers of black balls in the urn 
+    k = sum(row) #The number of balls drawn from the urn ie. genes in this row/with this IPR term
+    
+    if (k == 0){
+      return(NA)
+    }
+    
+    phyper(q, m, n, k, lower.tail = FALSE)
+})
+
+p_values_lower <- apply(ipr_summarised_1[2:50], 1, function(row) {
+    q = successes_in_Mala <- sum(row[Mala_columns]) #nr of white balls drawn without replacement 
+    m = total_genes_Mala #The total number of white balls in the urn 
+    n = total_genes_not_Mala #The total numbers of bleck balls in the urn 
+    k = sum(row) #The number of balls drawn from the urn ie. genes in this row/with this IPR term
+    
+    if (k == 0){
+      return(NA)
+    }
+    
+    phyper(q, m, n, k, lower.tail = TRUE)
+})
+
+Mala_ipr_pvals <- data.frame('IPR' = ipr_summarised$IPR, 'p_val_upper' = p_values, 'p_val_lower' = p_values_lower)
+Mala_ipr_pvals$q_value_upper <- p.adjust(Mala_ipr_pvals$p_val_upper, method = "BH")
+Mala_ipr_pvals$q_value_lower <- p.adjust(Mala_ipr_pvals$p_val_lower, method = "BH")
+
+df_ratios$variance <- apply(df_ratios %>% select(-IPR), 1, var, na.rm = TRUE)
+
+Mala_ipr_pvals <- merge(Mala_ipr_pvals, data_frame('IPR' = df_ratios$IPR, 'variance' = df_ratios$variance), by = 'IPR')
+
+#How many significant lower - ie. fewer copies in Mala than the rest 
+sum(Mala_ipr_pvals[order(Mala_ipr_pvals$q_value_lower),]$q_value_lower < 0.01, na.rm = TRUE)
+summary(Mala_ipr_pvals[Mala_ipr_pvals[order(Mala_ipr_pvals$q_value_lower),]$q_value_lower < 0.01,]$variance)
+
+lower_iprs <- head(Mala_ipr_pvals[order(Mala_ipr_pvals$q_value_lower, -Mala_ipr_pvals$variance),]$IPR,10)
+
+#how many significant upper - ie. more copies in Mala than rest
+sum(Mala_ipr_pvals[order(Mala_ipr_pvals$q_value_upper),]$q_value_upper < 0.01, na.rm = TRUE)
+summary(Mala_ipr_pvals[Mala_ipr_pvals[order(Mala_ipr_pvals$q_value_upper),]$q_value_upper < 0.01,]$variance)
+
+upper_iprs <- head(Mala_ipr_pvals[order(Mala_ipr_pvals$q_value_upper,-Mala_ipr_pvals$variance),]$IPR,20)
+
+iprs_pval_Mala <- c(lower_iprs, upper_iprs)
+```
+
+
+###Package, palette and Z-score function
+```{r}
+library(pheatmap)
+hm_pallette <- rev(c("#BA2C13", "#C85A36", "#DD9F6A", "#F0E49D", "#EAEFF2", "#C7D3E0", "#A4B7CE", "#7893B7"))
+
+article_pallette <- c("#5674b4", "#7eacd1", "#afd9e9", "#e1f2f9", "#f7e18e", "#f7b060", "#ee6d43", "#d32e28")
+
+
+row_zscore <- function(x) {
+  if (all(is.na(x))) {
+    return(rep(NA, length(x)))  # Return NA if all values are NA
+  }
+  sd_x <- sd(x, na.rm = TRUE)  # Calculate standard deviation
+  if (sd_x == 0) {
+    return(rep(0, length(x)))  # Return all 0s if no variation in the row
+  } else {
+    return((x - mean(x, na.rm = TRUE)) / sd_x)  # Normal Z-score calculation
+  }
+}
+
+```
+
+### Making heatmaps
+#### all species 
+```{r}
+df_ratios$variance <- apply(df_ratios %>% select(-IPR), 1, var, na.rm = TRUE)
+species_diff_ipr <- head(df_ratios[order(df_ratios$variance, decreasing = TRUE),], 20) %>% select(-variance)
+
+# Apply Z-score calculation row-wise across the numeric columns 
+zscore_df <- species_diff_ipr %>%
+  column_to_rownames("IPR") %>%
+  as.matrix() %>%
+  apply(., 1, row_zscore) %>%  # Transpose back
+  t() %>%
+  as.data.frame()
+
+names(zscore_df) <- c(names(df_ratios)[2:(length(df_ratios)-1)])
+names(zscore_df)
+zscore_hm <- zscore_df
+
+
+genec_hm <- df_ratios[df_ratios$IPR %in% row.names(zscore_hm), ] 
+genec_hm <- genec_hm[match(row.names(zscore_hm), genec_hm$IPR), ] %>% as.data.frame() # reorder genec_hm to match zscore_hm
+rownames(genec_hm) <- genec_hm$IPR  # Set row names to IPR for proper alignment
+genec_hm <- genec_hm %>% select(-IPR) %>% select(-variance)
+
+#check if the rows are in the same order
+row.names(zscore_hm) == row.names(genec_hm)
+
+
+#adding the descriptions to the IPR term
+ipr_desc <- full_ipr[full_ipr$V12 %in% rownames(genec_hm),][12:13] %>% group_by(V12) %>%   summarise(across(everything(), ~ paste(unique(.), collapse = ", ")))  # Collapse rows
+ipr_desc <- ipr_desc[match(row.names(zscore_hm), ipr_desc$V12), ]
+
+#check if rows are in the same order
+ipr_desc$V12 == row.names(zscore_hm) 
+
+ipr_desc$ipr_desc <- paste(ipr_desc$V12, ipr_desc$V13, sep = ":")
+
+row.names(zscore_hm) <- ipr_desc$ipr_desc
+row.names(genec_hm) <- ipr_desc$ipr_desc 
+
+# Plot the heatmap with row Z-scores
+pheatmap(zscore_hm,
+         cluster_rows = FALSE,
+         cluster_cols = TRUE,
+         color = hm_pallette,
+         border_color = "white",
+         display_numbers = genec_hm,
+         number_color = "black",
+         main = "Heatmap of most variable IPR terms", 
+         fontsize_number = 7,       
+         angle_col = 90)
+
+```
+
+
+#### manually choosing a list of IPR terms to visualize
+
+```{r}
+#From article
+
+proteases <- c("IPR015500", "IPR001842", "IPR009003", "IPR022398", "IPR011096", "IPR009020", "IPR000209", "IPR010259", "IPR036852", "IPR021109", "IPR038765")
+lysm <- c("IPR018382", "IPR002482", "IPR036779")
+kinases <- c("IPR011009", "IPR020635", "IPR002290", "IPR051334")
+metabolism <- c("IPR002575", "IPR001128", "IPR009081", "IPR006163", "IPR001242", "IPR010071", "IPR002401", "IPR020806", "IPR020845", "IPR001077", "IPR000873", "IPR036396", "IPR050416", "IPR050091", "IPR016181", "IPR016036", "IPR016035") # a lot more - we have to narrow down? maybe some part of fat-metabolism to see if Malassezia is significantly different
+
+interest_ipr <- c(proteases, lysm, kinases, metabolism)
+
+article_IPRs <- df_ratios %>% filter(IPR %in% interest_ipr)
+derm_sig_IPRs <- df_ratios %>% filter(IPR %in% iprs_pval_dermatophytes)
+saccharo_sig_IPRs <- df_ratios %>% filter(IPR %in% iprs_pval_saccharo)
+Mala_sig_IPRs <- df_ratios %>% filter(IPR %in% iprs_pval_Mala)
+
+# Apply Z-score calculation row-wise across the numeric columns 
+zscore_df <- Mala_sig_IPRs[1:23] %>%
+  column_to_rownames("IPR") %>%
+  as.matrix() %>%
+  apply(., 1, row_zscore) %>%  # Transpose back
+  t() %>%
+  as.data.frame()
+```
+
+
+```{r}
+zscore_hm <- zscore_df # %>% select(-variance)
+genec_hm  <- Mala_sig_IPRs %>% select(-variance)
+
+names(genec_hm)
+names(zscore_hm)
+#names(zscore_hm) <- names(genec_hm)[2:22]
+
+genec_hm <- genec_hm[match(row.names(zscore_hm), genec_hm$IPR), ] %>% as.data.frame() # reorder genec_hm to match zscore_hm
+rownames(genec_hm) <- genec_hm$IPR  # Set row names to IPR for proper alignment
+genec_hm <- genec_hm %>% select(-IPR) 
+
+#check if the rows are in the same order
+row.names(zscore_hm) == row.names(genec_hm)
+
+#adding the descriptions to the IPR term
+ipr_desc <- full_ipr[full_ipr$V12 %in% row.names(genec_hm),][12:13] %>% group_by(V12) %>%   summarise(across(everything(), ~ paste(unique(.), collapse = ", ")))  # Collapse rows
+ipr_desc <- ipr_desc[match(row.names(zscore_hm), ipr_desc$V12), ]
+
+#check if rows are in the same order
+ipr_desc$V12 == row.names(zscore_hm) 
+
+ipr_desc$ipr_desc <- paste(ipr_desc$V12, ipr_desc$V13, sep = ":")
+
+row.names(zscore_hm) <- ipr_desc$ipr_desc
+
+zscore_hm[zscore_hm>2] <- 2
+
+ipr_vals <- Mala_ipr_pvals[Mala_ipr_pvals$IPR %in% iprs_pval_Mala,]
+ipr_vals <- ipr_vals[order(ipr_vals$q_value_lower),]
+ipr_vals
+
+zscore_hm_ordered <- zscore_hm[ipr_vals$IPR, , drop = FALSE]
+genec_hm_ordered  <- genec_hm[ipr_vals$IPR, , drop = FALSE]
+
+# Plot the heatmap with row Z-scores
+pheatmap(zscore_hm_ordered, 
+         cluster_rows = FALSE, 
+         cluster_cols = TRUE, 
+         color = article_pallette,
+         border_color = "white",
+         display_numbers = genec_hm_ordered,
+         number_color = "black",
+         main = "Heatmap of significant and most variable", 
+         fontsize_number = 7,       
+         angle_col = 90)
+  
+```
+
+#### Genus-wise
+```{r}
+sum_means <- ipr_long_Can_Mal %>% group_by(IPR, genus) %>% summarise(max = max(Gene_number))
+
+df_ratios <- sum_means %>%
+  spread(genus, max)
+
+df_ratios$variance <- apply(df_ratios %>% select(-IPR), 1, var, na.rm = TRUE)
+
+genus_diff_ipr <- head(df_ratios[order(df_ratios$variance, decreasing = TRUE),], 50) %>% select(-variance)
+
+print(head(genus_diff_ipr[1:9]))
+
+zscore_df <- genus_diff_ipr[1:9] %>%
+  column_to_rownames("IPR") %>%
+  as.matrix() %>%
+  apply(., 1, row_zscore) %>%  # Transpose back
+  t() %>%
+  as.data.frame()
+
+head(zscore_df)
+
+zscore_hm <- zscore_df
+
+genec_hm <- df_ratios[df_ratios$IPR %in% row.names(zscore_hm), ] 
+genec_hm <- genec_hm[match(row.names(zscore_hm), genec_hm$IPR), ] %>% as.data.frame() # reorder genec_hm to match zscore_hm
+rownames(genec_hm) <- genec_hm$IPR  # Set row names to IPR for proper alignment
+genec_hm <- genec_hm %>% select(-IPR) %>% select(-variance)
+
+#check if the rows are in the same order
+row.names(zscore_hm) == row.names(genec_hm)
+
+names(zscore_hm) <- c(names(genec_hm[1:8]))
+names(zscore_hm)
+
+#adding the descriptions to the IPR term
+ipr_desc <- full_ipr[full_ipr$V12 %in% rownames(genec_hm),][12:13] %>% group_by(V12) %>%   summarise(across(everything(), ~ paste(unique(.), collapse = ", ")))  # Collapse rows
+ipr_desc <- ipr_desc[match(row.names(zscore_hm), ipr_desc$V12), ]
+
+#check if rows are in the same order
+ipr_desc$V12 == row.names(zscore_hm) 
+
+ipr_desc$ipr_desc <- paste(ipr_desc$V12, ipr_desc$V13, sep = ":")
+
+row.names(zscore_hm) <- ipr_desc$ipr_desc
+row.names(genec_hm) <- ipr_desc$ipr_desc 
+
+# Plot the heatmap with row Z-scores
+pheatmap(zscore_hm,
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         color = hm_pallette,
+         border_color = "white",
+         display_numbers = genec_hm[1:8],
+         number_color = "black",
+         main = "Heatmap of most variable IPR terms", 
+         fontsize_number = 7,       
+         angle_col = 90)
+
+
+```
+

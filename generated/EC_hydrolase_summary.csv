@@ -1,0 +1,267 @@
+"species","Hydrolase_sub","GeneCount","catprop"
+"Aspergillus_fumigatus","Acid anhydrides",93,15.5778894472362
+"Aspergillus_fumigatus","Carbon–carbon",5,0.837520938023451
+"Aspergillus_fumigatus","Carbon–nitrogen",63,10.5527638190955
+"Aspergillus_fumigatus","Ester",157,26.2981574539363
+"Aspergillus_fumigatus","Ether",8,1.34003350083752
+"Aspergillus_fumigatus","Glycosylases",167,27.9731993299832
+"Aspergillus_fumigatus","Peptide",104,17.4204355108878
+"Candida_albicans","Acid anhydrides",84,22.1052631578947
+"Candida_albicans","Carbon–carbon",2,0.526315789473684
+"Candida_albicans","Carbon–nitrogen",39,10.2631578947368
+"Candida_albicans","Ester",124,32.6315789473684
+"Candida_albicans","Ether",3,0.789473684210526
+"Candida_albicans","Glycosylases",43,11.3157894736842
+"Candida_albicans","Peptide",85,22.3684210526316
+"Candida_dubliniensis","Acid anhydrides",249,22.6569608735214
+"Candida_dubliniensis","Carbon–carbon",6,0.545950864422202
+"Candida_dubliniensis","Carbon–nitrogen",105,9.55414012738854
+"Candida_dubliniensis","Ester",382,34.7588717015469
+"Candida_dubliniensis","Ether",9,0.818926296633303
+"Candida_dubliniensis","Glycosylases",113,10.2820746132848
+"Candida_dubliniensis","Peptide",235,21.3830755232029
+"Candida_metapsilosis","Acid anhydrides",86,21.3399503722084
+"Candida_metapsilosis","Carbon–carbon",2,0.496277915632754
+"Candida_metapsilosis","Carbon–nitrogen",42,10.4218362282878
+"Candida_metapsilosis","Ester",131,32.5062034739454
+"Candida_metapsilosis","Ether",5,1.24069478908189
+"Candida_metapsilosis","Glycosylases",39,9.67741935483871
+"Candida_metapsilosis","Peptide",98,24.317617866005
+"Candida_orthopsilosis","Acid anhydrides",83,21.0659898477157
+"Candida_orthopsilosis","Carbon–carbon",2,0.50761421319797
+"Candida_orthopsilosis","Carbon–nitrogen",41,10.4060913705584
+"Candida_orthopsilosis","Ester",130,32.994923857868
+"Candida_orthopsilosis","Ether",3,0.761421319796954
+"Candida_orthopsilosis","Glycosylases",34,8.62944162436548
+"Candida_orthopsilosis","Peptide",101,25.6345177664975
+"Candida_parapsilosis","Acid anhydrides",184,22.5766871165644
+"Candida_parapsilosis","Carbon–carbon",4,0.49079754601227
+"Candida_parapsilosis","Carbon–nitrogen",77,9.4478527607362
+"Candida_parapsilosis","Ester",280,34.3558282208589
+"Candida_parapsilosis","Ether",6,0.736196319018405
+"Candida_parapsilosis","Glycosylases",71,8.71165644171779
+"Candida_parapsilosis","Peptide",193,23.680981595092
+"Candida_tropicalis","Acid anhydrides",89,22.029702970297
+"Candida_tropicalis","Carbon–carbon",2,0.495049504950495
+"Candida_tropicalis","Carbon–nitrogen",40,9.9009900990099
+"Candida_tropicalis","Ester",135,33.4158415841584
+"Candida_tropicalis","Ether",3,0.742574257425743
+"Candida_tropicalis","Glycosylases",43,10.6435643564356
+"Candida_tropicalis","Peptide",92,22.7722772277228
+"Chrysosporium_queenslandicum","Acid anhydrides",123,20.3980099502488
+"Chrysosporium_queenslandicum","Carbon–carbon",8,1.32669983416252
+"Chrysosporium_queenslandicum","Carbon–nitrogen",83,13.7645107794362
+"Chrysosporium_queenslandicum","Ester",173,28.6898839137645
+"Chrysosporium_queenslandicum","Ether",5,0.829187396351575
+"Chrysosporium_queenslandicum","Glycosylases",69,11.4427860696517
+"Chrysosporium_queenslandicum","Peptide",142,23.5489220563847
+"Cryptococcus_neoformans","Acid anhydrides",87,24.6458923512748
+"Cryptococcus_neoformans","Carbon–carbon",2,0.56657223796034
+"Cryptococcus_neoformans","Carbon–nitrogen",40,11.3314447592068
+"Cryptococcus_neoformans","Ester",97,27.4787535410765
+"Cryptococcus_neoformans","Ether",2,0.56657223796034
+"Cryptococcus_neoformans","Glycosylases",42,11.8980169971671
+"Cryptococcus_neoformans","Peptide",83,23.5127478753541
+"Epidermophyton_floccosum","Acid anhydrides",371,26.8840579710145
+"Epidermophyton_floccosum","Carbon–carbon",9,0.652173913043478
+"Epidermophyton_floccosum","Carbon–nitrogen",136,9.85507246376812
+"Epidermophyton_floccosum","Ester",392,28.4057971014493
+"Epidermophyton_floccosum","Ether",12,0.869565217391304
+"Epidermophyton_floccosum","Glycosylases",163,11.8115942028986
+"Epidermophyton_floccosum","Peptide",297,21.5217391304348
+"Histoplasma_capsulatum","Acid anhydrides",86,20.5741626794258
+"Histoplasma_capsulatum","Carbon–carbon",2,0.478468899521531
+"Histoplasma_capsulatum","Carbon–nitrogen",54,12.9186602870813
+"Histoplasma_capsulatum","Ester",117,27.9904306220096
+"Histoplasma_capsulatum","Ether",6,1.43540669856459
+"Histoplasma_capsulatum","Glycosylases",61,14.5933014354067
+"Histoplasma_capsulatum","Peptide",92,22.0095693779904
+"Hortaea_werneckii","Acid anhydrides",538,19.2624418188328
+"Hortaea_werneckii","Carbon–carbon",25,0.895094880057286
+"Hortaea_werneckii","Carbon–nitrogen",284,10.1682778374508
+"Hortaea_werneckii","Ester",787,28.1775868242034
+"Hortaea_werneckii","Ether",23,0.823487289652703
+"Hortaea_werneckii","Glycosylases",688,24.6330110991765
+"Hortaea_werneckii","Peptide",448,16.0401002506266
+"Malassezia_dermatis","Acid anhydrides",83,30.8550185873606
+"Malassezia_dermatis","Carbon–carbon",1,0.371747211895911
+"Malassezia_dermatis","Carbon–nitrogen",23,8.55018587360595
+"Malassezia_dermatis","Ester",82,30.4832713754647
+"Malassezia_dermatis","Ether",2,0.743494423791822
+"Malassezia_dermatis","Glycosylases",12,4.46096654275093
+"Malassezia_dermatis","Peptide",66,24.5353159851301
+"Malassezia_equina","Acid anhydrides",80,29.6296296296296
+"Malassezia_equina","Carbon–carbon",2,0.740740740740741
+"Malassezia_equina","Carbon–nitrogen",21,7.77777777777778
+"Malassezia_equina","Ester",83,30.7407407407407
+"Malassezia_equina","Ether",2,0.740740740740741
+"Malassezia_equina","Glycosylases",14,5.18518518518519
+"Malassezia_equina","Peptide",68,25.1851851851852
+"Malassezia_furfur","Acid anhydrides",445,31.3601127554616
+"Malassezia_furfur","Carbon–carbon",15,1.05708245243129
+"Malassezia_furfur","Carbon–nitrogen",103,7.25863284002819
+"Malassezia_furfur","Ester",421,29.6687808315715
+"Malassezia_furfur","Ether",14,0.98661028893587
+"Malassezia_furfur","Glycosylases",68,4.79210711768851
+"Malassezia_furfur","Peptide",353,24.876673713883
+"Malassezia_globosa","Acid anhydrides",284,30.0211416490486
+"Malassezia_globosa","Carbon–carbon",6,0.634249471458774
+"Malassezia_globosa","Carbon–nitrogen",66,6.97674418604651
+"Malassezia_globosa","Ester",294,31.0782241014799
+"Malassezia_globosa","Ether",6,0.634249471458774
+"Malassezia_globosa","Glycosylases",42,4.43974630021142
+"Malassezia_globosa","Peptide",248,26.215644820296
+"Malassezia_pachydermatis","Acid anhydrides",77,26.4604810996564
+"Malassezia_pachydermatis","Carbon–carbon",2,0.687285223367698
+"Malassezia_pachydermatis","Carbon–nitrogen",24,8.24742268041237
+"Malassezia_pachydermatis","Ester",99,34.020618556701
+"Malassezia_pachydermatis","Ether",2,0.687285223367698
+"Malassezia_pachydermatis","Glycosylases",15,5.15463917525773
+"Malassezia_pachydermatis","Peptide",72,24.7422680412371
+"Malassezia_restricta","Acid anhydrides",181,29.14653784219
+"Malassezia_restricta","Carbon–carbon",4,0.644122383252818
+"Malassezia_restricta","Carbon–nitrogen",42,6.76328502415459
+"Malassezia_restricta","Ester",212,34.1384863123994
+"Malassezia_restricta","Ether",4,0.644122383252818
+"Malassezia_restricta","Glycosylases",23,3.7037037037037
+"Malassezia_restricta","Peptide",155,24.9597423510467
+"Malassezia_sympodialis","Acid anhydrides",81,29.3478260869565
+"Malassezia_sympodialis","Carbon–carbon",1,0.36231884057971
+"Malassezia_sympodialis","Carbon–nitrogen",24,8.69565217391304
+"Malassezia_sympodialis","Ester",83,30.0724637681159
+"Malassezia_sympodialis","Ether",2,0.72463768115942
+"Malassezia_sympodialis","Glycosylases",14,5.07246376811594
+"Malassezia_sympodialis","Peptide",71,25.7246376811594
+"Microsporum_audouinii","Acid anhydrides",242,25.2083333333333
+"Microsporum_audouinii","Carbon–carbon",6,0.625
+"Microsporum_audouinii","Carbon–nitrogen",95,9.89583333333333
+"Microsporum_audouinii","Ester",273,28.4375
+"Microsporum_audouinii","Ether",11,1.14583333333333
+"Microsporum_audouinii","Glycosylases",126,13.125
+"Microsporum_audouinii","Peptide",207,21.5625
+"Microsporum_canis","Acid anhydrides",373,25.7952973720609
+"Microsporum_canis","Carbon–carbon",9,0.622406639004149
+"Microsporum_canis","Carbon–nitrogen",134,9.26694329183956
+"Microsporum_canis","Ester",404,27.939142461964
+"Microsporum_canis","Ether",17,1.17565698478562
+"Microsporum_canis","Glycosylases",190,13.1396957123098
+"Microsporum_canis","Peptide",319,22.060857538036
+"Microsporum_ferrugineum","Acid anhydrides",256,25.8064516129032
+"Microsporum_ferrugineum","Carbon–carbon",6,0.604838709677419
+"Microsporum_ferrugineum","Carbon–nitrogen",97,9.77822580645161
+"Microsporum_ferrugineum","Ester",276,27.8225806451613
+"Microsporum_ferrugineum","Ether",10,1.00806451612903
+"Microsporum_ferrugineum","Glycosylases",131,13.2056451612903
+"Microsporum_ferrugineum","Peptide",216,21.7741935483871
+"Nakaseomyces_glabratus","Acid anhydrides",275,26.0663507109005
+"Nakaseomyces_glabratus","Carbon–carbon",3,0.28436018957346
+"Nakaseomyces_glabratus","Carbon–nitrogen",83,7.86729857819905
+"Nakaseomyces_glabratus","Ester",371,35.1658767772512
+"Nakaseomyces_glabratus","Ether",6,0.568720379146919
+"Nakaseomyces_glabratus","Glycosylases",75,7.10900473933649
+"Nakaseomyces_glabratus","Peptide",242,22.9383886255924
+"Nannizzia_gypsea","Acid anhydrides",124,26.3269639065817
+"Nannizzia_gypsea","Carbon–carbon",3,0.636942675159236
+"Nannizzia_gypsea","Carbon–nitrogen",45,9.55414012738854
+"Nannizzia_gypsea","Ester",132,28.0254777070064
+"Nannizzia_gypsea","Ether",4,0.849256900212314
+"Nannizzia_gypsea","Glycosylases",57,12.1019108280255
+"Nannizzia_gypsea","Peptide",106,22.5053078556263
+"Pichia_kudriavzevii","Acid anhydrides",107,27.0886075949367
+"Pichia_kudriavzevii","Carbon–carbon",2,0.506329113924051
+"Pichia_kudriavzevii","Carbon–nitrogen",39,9.87341772151899
+"Pichia_kudriavzevii","Ester",131,33.1645569620253
+"Pichia_kudriavzevii","Ether",2,0.506329113924051
+"Pichia_kudriavzevii","Glycosylases",21,5.31645569620253
+"Pichia_kudriavzevii","Peptide",93,23.5443037974684
+"Rhodotorula_toruloides","Acid anhydrides",96,23.4146341463415
+"Rhodotorula_toruloides","Carbon–carbon",3,0.731707317073171
+"Rhodotorula_toruloides","Carbon–nitrogen",51,12.4390243902439
+"Rhodotorula_toruloides","Ester",117,28.5365853658537
+"Rhodotorula_toruloides","Ether",6,1.46341463414634
+"Rhodotorula_toruloides","Glycosylases",41,10
+"Rhodotorula_toruloides","Peptide",96,23.4146341463415
+"Saccharomyces_cerevisiae","Acid anhydrides",84,24.633431085044
+"Saccharomyces_cerevisiae","Carbon–carbon",2,0.586510263929619
+"Saccharomyces_cerevisiae","Carbon–nitrogen",33,9.67741935483871
+"Saccharomyces_cerevisiae","Ester",119,34.8973607038123
+"Saccharomyces_cerevisiae","Ether",2,0.586510263929619
+"Saccharomyces_cerevisiae","Glycosylases",29,8.50439882697947
+"Saccharomyces_cerevisiae","Peptide",72,21.1143695014663
+"Trichophyton_concentricum","Acid anhydrides",245,25.6544502617801
+"Trichophyton_concentricum","Carbon–carbon",8,0.837696335078534
+"Trichophyton_concentricum","Carbon–nitrogen",90,9.42408376963351
+"Trichophyton_concentricum","Ester",277,29.0052356020942
+"Trichophyton_concentricum","Ether",8,0.837696335078534
+"Trichophyton_concentricum","Glycosylases",114,11.9371727748691
+"Trichophyton_concentricum","Peptide",213,22.303664921466
+"Trichophyton_indotineae","Acid anhydrides",90,21.1267605633803
+"Trichophyton_indotineae","Carbon–carbon",3,0.704225352112676
+"Trichophyton_indotineae","Carbon–nitrogen",47,11.0328638497653
+"Trichophyton_indotineae","Ester",119,27.9342723004695
+"Trichophyton_indotineae","Ether",5,1.17370892018779
+"Trichophyton_indotineae","Glycosylases",57,13.3802816901408
+"Trichophyton_indotineae","Peptide",105,24.6478873239437
+"Trichophyton_interdigitale","Acid anhydrides",91,21.563981042654
+"Trichophyton_interdigitale","Carbon–carbon",3,0.710900473933649
+"Trichophyton_interdigitale","Carbon–nitrogen",47,11.1374407582938
+"Trichophyton_interdigitale","Ester",116,27.4881516587678
+"Trichophyton_interdigitale","Ether",5,1.18483412322275
+"Trichophyton_interdigitale","Glycosylases",56,13.2701421800948
+"Trichophyton_interdigitale","Peptide",104,24.6445497630332
+"Trichophyton_kuryangei","Acid anhydrides",90,21.6346153846154
+"Trichophyton_kuryangei","Carbon–carbon",3,0.721153846153846
+"Trichophyton_kuryangei","Carbon–nitrogen",47,11.2980769230769
+"Trichophyton_kuryangei","Ester",114,27.4038461538462
+"Trichophyton_kuryangei","Ether",4,0.961538461538462
+"Trichophyton_kuryangei","Glycosylases",54,12.9807692307692
+"Trichophyton_kuryangei","Peptide",104,25
+"Trichophyton_mentagrophytes","Acid anhydrides",230,24.8112189859763
+"Trichophyton_mentagrophytes","Carbon–carbon",7,0.75512405609493
+"Trichophyton_mentagrophytes","Carbon–nitrogen",89,9.60086299892125
+"Trichophyton_mentagrophytes","Ester",275,29.6655879180151
+"Trichophyton_mentagrophytes","Ether",9,0.970873786407767
+"Trichophyton_mentagrophytes","Glycosylases",108,11.6504854368932
+"Trichophyton_mentagrophytes","Peptide",209,22.5458468176915
+"Trichophyton_rubrum","Acid anhydrides",473,25.512405609493
+"Trichophyton_rubrum","Carbon–carbon",12,0.647249190938511
+"Trichophyton_rubrum","Carbon–nitrogen",191,10.302049622438
+"Trichophyton_rubrum","Ester",524,28.2632146709817
+"Trichophyton_rubrum","Ether",16,0.862998921251348
+"Trichophyton_rubrum","Glycosylases",224,12.0819848975189
+"Trichophyton_rubrum","Peptide",414,22.3300970873786
+"Trichophyton_schoenleinii","Acid anhydrides",229,24.4136460554371
+"Trichophyton_schoenleinii","Carbon–carbon",7,0.746268656716418
+"Trichophyton_schoenleinii","Carbon–nitrogen",95,10.1279317697228
+"Trichophyton_schoenleinii","Ester",272,28.997867803838
+"Trichophyton_schoenleinii","Ether",8,0.852878464818763
+"Trichophyton_schoenleinii","Glycosylases",115,12.2601279317697
+"Trichophyton_schoenleinii","Peptide",212,22.6012793176972
+"Trichophyton_soudanese","Acid anhydrides",89,21.4457831325301
+"Trichophyton_soudanese","Carbon–carbon",3,0.72289156626506
+"Trichophyton_soudanese","Carbon–nitrogen",46,11.0843373493976
+"Trichophyton_soudanese","Ester",114,27.4698795180723
+"Trichophyton_soudanese","Ether",4,0.963855421686747
+"Trichophyton_soudanese","Glycosylases",57,13.7349397590361
+"Trichophyton_soudanese","Peptide",102,24.578313253012
+"Trichophyton_tonsurans","Acid anhydrides",361,25.8226037195994
+"Trichophyton_tonsurans","Carbon–carbon",9,0.643776824034335
+"Trichophyton_tonsurans","Carbon–nitrogen",137,9.7997138769671
+"Trichophyton_tonsurans","Ester",399,28.5407725321888
+"Trichophyton_tonsurans","Ether",12,0.858369098712446
+"Trichophyton_tonsurans","Glycosylases",165,11.8025751072961
+"Trichophyton_tonsurans","Peptide",315,22.5321888412017
+"Trichophyton_violaceum","Acid anhydrides",116,25.1626898047722
+"Trichophyton_violaceum","Carbon–carbon",3,0.650759219088937
+"Trichophyton_violaceum","Carbon–nitrogen",46,9.97830802603037
+"Trichophyton_violaceum","Ester",134,29.0672451193059
+"Trichophyton_violaceum","Ether",4,0.867678958785249
+"Trichophyton_violaceum","Glycosylases",55,11.9305856832972
+"Trichophyton_violaceum","Peptide",103,22.3427331887202
+"Trichosporon_ovoides","Acid anhydrides",455,25.8964143426295
+"Trichosporon_ovoides","Carbon–carbon",16,0.910643141718839
+"Trichosporon_ovoides","Carbon–nitrogen",176,10.0170745589072
+"Trichosporon_ovoides","Ester",499,28.4006829823563
+"Trichosporon_ovoides","Ether",8,0.455321570859419
+"Trichosporon_ovoides","Glycosylases",224,12.7490039840637
+"Trichosporon_ovoides","Peptide",379,21.570859419465

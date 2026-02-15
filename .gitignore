@@ -1,0 +1,49 @@
+# Ignore everything by default
+/*
+
+# Track these top-level files
+!.gitignore
+!README.md
+
+# Track scripts/
+!scripts/
+
+# Exclusions within scripts/
+scripts/.DS_Store
+scripts/.Rhistory
+scripts/.vscode/
+scripts/.empty/
+scripts/temp/
+scripts/*.html
+scripts/proteins_test30.faa
+scripts/aspfum_proteins_test30.faa
+scripts/test_pfam.tsv
+scripts/all_annotations_combined.tsv
+scripts/genome.fixedproducts
+scripts/tree_clean.txt
+scripts/tree_ids.txt
+scripts/2008_full_bp_busco_plot_bg.png
+
+# Track generated/ - only whitelisted files
+!generated/
+generated/*
+
+# Manually curated data
+!generated/1211_manual_cur_secreted.xlsx
+!generated/gpi_manual_curated.xlsx
+
+# External reference data
+!generated/Pfam-A.clans.tsv
+!generated/busco_visu.xlsx
+
+# Final summary/plot data
+!generated/species_kegg_category_summary.csv
+!generated/EC_hydrolase_summary.csv
+!generated/plot5_df.csv
+!generated/gpi_plot_df_long.csv
+!generated/OG_annotation_genecounts.tsv
+
+# Figure for README
+!tables_figures/
+tables_figures/*
+!tables_figures/0212_figure1.jpg

@@ -1,0 +1,203 @@
+---
+title: "stat_visualisation"
+author: "Sofie Agerbæk"
+date: "2024-04-03"
+output: html_document
+---
+
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(tibble)
+library(patchwork)
+library(RColorBrewer)
+library(Polychrome)
+library(readxl)
+```
+
+
+
+```{r, include=FALSE}
+library(cowplot)
+options(digits = 3)        # number of digits printed by R default (vectors, data.frames, lists)
+options(pillar.sigfig = 3) # number of digits printed by tibbles default.
+
+text_base_size   <- 10    # in pt
+fig.witdh        <- 180  # in mm
+fig.height       <- 125  # in mm
+
+# Set all text in plots to same size
+theme_set(theme_cowplot(font_size = 10, rel_small = 1, rel_tiny = 1, rel_large = 1))
+theme_update(panel.grid.major = element_line(colour="gray85"), panel.grid.minor = element_line(colour="gray95", linetype = 7))
+# Setting output sizes for plots
+knitr::opts_chunk$set(fig.width = fig.witdh/25.4)
+knitr::opts_chunk$set(fig.height = fig.height/25.4)
+knitr::opts_chunk$set(dpi = 108) # You need to find your monitors dpi yourself.
+
+# Setting text size inside plots (geom_text, geom_label etc.)
+ggplot_text_size <- text_base_size / ggplot2::.pt
+# Now use: geom_text(..., size = ggplot_text_size)
+
+pall1 <- c("#404e67", "#809bce","#89B2E7", "#7fa9a7", "#7eb77f", "#a8cea9", "#d3ecc4", "#ecffc3", "#d5da97","#AA9F40", "#A27E31","#de8f49", "#D67238", "#C8461E", "#9B2603", "#420602", "#802F2F", "#C88080","#E694BC","#CE70B6" , "#9C5BA2", "#7442A3",  "#9887d0", "#6c6b9c", "#443654")
+#"#242D3B", 
+pall1_light <- c("#979797","#A6AAB1", "#869BBE", "#6585BD", "#76A1F1","#9DC8FF", "#A3E1EF", "#96FBEA", "#8CDBD1",  "#84D09A", "#7DCF7E", "#B0EE86", "#CEF7A5", "#DCFFC2", "#F2FFA8","#F4FF7B", "#F2F853", "#DDDB63", "#C7BB4E", "#BF9E43", "#CB883E", "#E78332", "#EA6C3D", "#DD5A3D", "#E44242", "#D65050",  "#E27373", "#F27D7C", "#F99A99", "#FFB7B5", "#E990A1","#D1768E" ,"#C9799F", "#BF89B1", "#B599C4","#ABA9D6",  "#987EBD", "#9B8EAC") #for when you need text on top ex.
+
+#  "#CE70B6",   "#E694BC","#FFC3E8", "#DB9FF6"
+
+scales::show_col(pall1_light, labels = FALSE)
+
+
+aut_palette <- colorRampPalette(brewer.pal(12, "Paired"))(38)
+scales::show_col(aut_palette, labels = FALSE)
+
+
+options(ggplot2.continuous.fill  = scale_fill_viridis_c)
+options(ggplot2.discrete.fill    = c("#809bce","#B2A3E4", "#404e67","slategray2", "#d1625c", "#ffd6a5", "#e89c81"))
+options(ggplot2.continuous.colour = scale_colour_viridis_c)
+options(ggplot2.discrete.colour   = c("#809bce","#9887D9", "#404e67", "slategray2", "#d1625c", "#ffd6a5", "#e89c81"))
+
+busco_pall <- c("#809bce","#B2A3E4", "#404e67","slategray2")
+
+```
+
+
+Read data
+```{r}
+stat_df <- read_xlsx("../generated/busco_visu.xlsx")
+
+stat_df$`Total basepairs` <- sub(",", "", stat_df$`Total basepairs`)
+stat_df$`Total basepairs` <- sub(",", "", stat_df$`Total basepairs`)
+stat_df$`Total basepairs` <- as.numeric(stat_df$`Total basepairs`)
+```
+
+
+```{r}
+print(stat_df$Species)
+```
+
+```{r}
+species_order <- c("Candida dubliniensis", "Candida dubliniensis", "Candida dubliniensis", 
+"Candida parapsilosis", "Candida parapsilosis", "Candida tropicalis", "Nakaseomyces glabratus", "Nakaseomyces glabratus", 
+"Nakaseomyces glabratus", "Pichia kudriavzevii", 
+"Pichia kudriavzevii",
+"Hortaea werneckii", "Hortaea werneckii", "Hortaea werneckii", 
+"Malassezia furfur", "Malassezia furfur", "Malassezia furfur", 
+"Malassezia furfur", "Malassezia globosa", "Malassezia globosa", 
+"Malassezia globosa", "Malassezia restricta", "Malassezia restricta", 
+"Microsporum audouinii", "Microsporum audouinii", "Microsporum canis", 
+"Microsporum canis", "Microsporum canis", "Microsporum ferrugineum", 
+"Microsporum ferrugineum", "Epidermophyton floccosum", "Epidermophyton floccosum", "Epidermophyton floccosum", "Nannizia gypsea", "Trichophyton concentricum", "Trichophyton concentricum", 
+"Trichophyton menthagrophytes", "Trichophyton menthagrophytes", 
+"Trichophyton rubrum", "Trichophyton rubrum", "Trichophyton rubrum", 
+"Trichophyton rubrum", "Trichophyton schoenleinii", "Trichophyton schoenleinii", 
+"Trichophyton tonsurans", "Trichophyton tonsurans", "Trichophyton tonsurans", 
+"Trichophyton verrucosum", "Trichophyton violaceum", "Trichophyton violaceum", 
+"Trichophyton violaceum", "Trichosporon ovoides", "Trichosporon ovoides", 
+"Trichosporon ovoides")
+
+species_order <- c( "Candida albicans", "Candida dubliniensis", "Candida metapsilosis", "Candida orthopsilosis", "Candida parapsilosis", "Candida tropicalis", "Nakaseomyces glabratus", "Pichia kudriavzevii", "Saccharomyces cerevisiae", "Aspergillus Fumigatus", 
+        "Hortaea werneckii", "Histoplasma capsulatum", "Chrysosporium queenslandicum", "Trichophyton concentricum", "Trichophyton indotineae",  "Trichophyton interdigitale", "Trichophyton kuryangei", "Trichophyton mentagrophytes", "Trichophyton rubrum", "Trichophyton schoenleinii",  "Trichophyton soudanese", 
+"Trichophyton tonsurans", "Trichophyton violaceum", "Epidermophyton floccosum", "Nannizzia gypsea",  "Microsporum audouinii", 
+"Microsporum canis", "Microsporum ferrugineum", "Cryptococcus neoformans", "Rhodotorula toruloides", 
+"Trichosporon ovoides", "Malassezia dermatis",     "Malassezia equina", "Malassezia furfur",  "Malassezia globosa", "Malassezia pachydermatis" , "Malassezia restricta", "Malassezia sympodialis")
+
+leaf_order <- c("Trichosporon_ovoides_9430", "Trichosporon_ovoides_7612", "Trichosporon_ovoides_4098", "Malassezia_furfur_1878","Malassezia_furfur_6000", "Malassezia_furfur_1414029", 
+"Malassezia_furfur_1414015", "Malassezia_restricta_7991","Malassezia_restricta_7877", "Malassezia_globosa_7705","Malassezia_globosa_8744", "Malassezia_globosa_7886", 
+"Pichia_kudriavzevii_57331","Pichia_kudriavzevii_57316",  "Nakaseomyces_glabratus_138", 
+"Nakaseomyces_glabratus_15698","Nakaseomyces_glabratus_11311", "Candida_parapsilosis_11301", "Candida_parapsilosis_1954",  "Candida_tropicalis_94", 
+"Candida_dubliniensis_2747", "Candida_dubliniensis_11945", "Candida_dubliniensis_8501", 
+"Hortaea_werneckii_1163", "Hortaea_werneckii_41051","Hortaea_werneckii_100455",  
+"Microsporum_canis_15669",  "Microsporum_canis_44551", "Microsporum_canis_113480", "Microsporum_audouinii_119449", "Microsporum_audouinii_33268", "Microsporum_ferrugineum_131111", 
+"Microsporum_ferrugineum_37371", 
+"Nannizzia_gypsea_17164", "Epidermophyton_floccosum_130802", "Epidermophyton_floccosum_10867", 
+"Epidermophyton_floccosum_100148", 
+"Trichophyton_schoenleinii_45859", "Trichophyton_schoenleinii_85571", 
+"Trichophyton_mentagrophytes_124404", "Trichophyton_menthagrophytes_43573", 
+"Trichophyton_tonsurans_112188", "Trichophyton_tonsurans_12935","Trichophyton_tonsurans_72988", 
+ "Trichophyton_concentricum_19626","Trichophyton_concentricum_109405", 
+ "Trichophyton_violaceum_73088", "Trichophyton_verrucosum_46059", "Trichophyton_rubrum_117539", "Trichophyton_rubrum_28986", "Trichophyton_violaceum_51763", "Trichophyton_rubrum_73588",  "Trichophyton_rubrum_17065", "Trichophyton_violaceum_120316"
+)
+
+leaf_order1 <- sub("_", " ", leaf_order)
+leaf_order1 <- sub("_", " ", leaf_order1)
+
+
+species_order <- gsub('[0-9]+', '', leaf_order1)
+species_order <- trimws(species_order)
+species_order <- sub(pattern = "mentha", replacement = "menta",  species_order)
+species_order <- unique(species_order)
+species_order <- rev(species_order)
+
+```
+
+
+
+Visualize genome sizes and gene numbers + lengths
+```{r}
+
+stat_df$sample <- as.factor(stat_df$sample)
+stat_df$`Sample number` <- as.factor(stat_df$`Sample number`)
+
+unique_fill_values <- unique(stat_df$Species)
+
+print(unique_fill_values)
+length(unique_fill_values) 
+
+
+stat_df$Species <- factor(stat_df$Species, levels = species_order)
+stat_df <- stat_df[order(stat_df$Species), ]
+
+t <- table(stat_df$Species)
+y_vals <- cumsum(t)
+#y_values <- c(1, 2, 5, 6, 7, 9, 10, 11, 12, 15, 16, 19, 20, 21, 24, 27, 28, 30, 31, 33, 36, 38, 41, 42, 43, 44, 45, 47, 48, 49, 50, 52, 56, 58, 59, 62, 63, 66)
+as.integer(y_vals)
+label_data <- data.frame(Species = unique_fill_values, y=as.integer(y_vals))
+
+
+p1 <- ggplot(stat_df, aes(y = `Sample number`, x = `Total basepairs`, fill = Species))+
+  geom_col()+
+  scale_y_discrete(limits=stat_df$sample)+
+  scale_x_continuous(
+    labels = function(x) x / 1e6,  # Convert base pairs to Mbp
+    breaks = c(0, 1e+07,3e+07,5e+07)  # Show every other label
+  )+
+  scale_fill_manual(values = as.vector(pall1_light))+
+#  geom_col(aes(x=gene_lengths), fill = "grey90", alpha = 0.8) +
+  geom_text(data = label_data, aes(x = 400000, y = y, label = (Species)),hjust = 0, size = 3.2, vjust = 0.3, fontface = "bold.italic")+
+  labs(x = "Total basepairs (Mbp)", y = "Strain identifier")+
+  guides(fill = "none")+
+  theme(panel.grid.major.y = element_blank(), axis.ticks = element_blank(), axis.line = element_line(linewidth = 0.7), axis.title = element_text(size = 12, face = "bold"), axis.text = element_text(size = 9, face = "bold"))
+
+p1
+
+```
+
+BUSCO 
+```{r}
+busco_long_df <- pivot_longer(tibble(stat_df[1:3], stat_df[7:10]), cols = c('S', 'D', 'F', 'M'), names_to = 'Busco_param', values_to = 'percentage')
+
+busco_long_df$`Sample number` <- as.factor(busco_long_df$`Sample number`)
+
+#'SingleCopy', 'Duplicated', 'Fragmented', 'Missing'
+```
+
+
+
+```{r}
+p2 = ggplot(busco_long_df, aes(y = `Sample number`, x=percentage, fill = Busco_param))+
+  geom_bar(stat = "identity", position = "stack")+
+  scale_y_discrete(limits=stat_df$`Sample number`, position = "right")+
+  labs(x = "Percentage", y = "Sample ID", fill = "BUSCO \nParameter")+
+  theme(axis.ticks = element_blank(), axis.line = element_line(linewidth = 0.7), axis.title = element_text(size = 12, face = "bold"), axis.text = element_text(size = 10, face = "bold"))
+p2
+```
+
+```{r}
+p_12 <- p1+p2+theme(axis.title.y = element_blank(), axis.text.y = element_blank(), axis.ticks.y = element_blank(), panel.grid.major = element_blank())
+p_12
+
+ggsave("2008_full_bp_busco_plot_bg.png", device = "png", width = 170, height = 220, units = "mm", bg = "white", dpi = 400)
+
+```
+

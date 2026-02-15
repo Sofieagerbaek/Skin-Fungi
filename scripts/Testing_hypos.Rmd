@@ -1,0 +1,829 @@
+---
+title: "Testing Hypotheses"
+author: "Sofie Agerbaek"
+date: "2026-01-29"
+output: html_document
+---
+
+#### In this script I statistically test differences across samples at different taxonomic levels (species, genus, family). Generally I employ non-parametric tests.
+
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(plotly)
+library(RColorBrewer)
+library(heatmaply)
+library(writexl)
+library(Polychrome)
+library(tidyr)
+library(stringr)
+library(rstatix)
+library(emmeans)
+```
+
+```{r, include=FALSE}
+library(cowplot)
+options(digits = 3)        # number of digits printed by R default (vectors, data.frames, lists)
+options(pillar.sigfig = 3) # number of digits printed by tibbles default.
+options(width = 200)
+
+text_base_size   <- 9 # in pt
+fig.witdh        <- 180  # in mm
+fig.height       <- 125  # in mm
+
+# Set all text in plots to same size
+theme_set(theme_cowplot(font_size = 10, rel_small = 1, rel_tiny = 1, rel_large = 1))
+theme_update(panel.grid.major = element_line(colour="gray85"), panel.grid.minor = element_line(colour="gray95", linetype = 7))
+# Setting output sizes for plots
+knitr::opts_chunk$set(fig.width = fig.witdh/25.4)
+knitr::opts_chunk$set(fig.height = fig.height/25.4)
+knitr::opts_chunk$set(dpi = 108) # You need to find your monitors dpi yourself.
+
+# Setting text size inside plots (geom_text, geom_label etc.)
+ggplot_text_size <- text_base_size / ggplot2::.pt
+# Now use: geom_text(..., size = ggplot_text_size)
+
+options(ggplot2.continuous.fill  = scale_fill_viridis_c)
+options(ggplot2.discrete.fill    = c("slategray2", "#404e67","#809bce","#9887D9" ,"#9C5BA2", "#DB9FF6",  "#d1625c", "#ffd6a5", "#e89c81"))
+options(ggplot2.continuous.colour = scale_colour_viridis_c)
+options(ggplot2.discrete.colour   = c("slategray2","#404e67", "#809bce","#9C5BA2","#9887D9",  "#d1625c", "#ffd6a5", "#e89c81"))
+
+# heatmap palette 
+article_pallette <- c("#5674b4", "#7eacd1", "#afd9e9", "#e1f2f9", "#f7e18e", "#f7b060", "#ee6d43", "#d32e28")
+
+```
+
+##### Setup
+Taxonomy dictionary
+```{r}
+taxonomy <- data.frame(
+  sample = c(
+    "Aspergillus_fumigatus_IP24",
+    "Candida_albicans_F133_05",
+    "Candida_dubliniensis_11945",
+    "Candida_dubliniensis_2747",
+    "Candida_dubliniensis_8501",
+    "Candida_metapsilosis_Y_48470",
+    "Candida_orthopsilosis_Y_48468",
+    "Candida_parapsilosis_11301",
+    "Candida_parapsilosis_1954",
+    "Candida_tropicalis_MYCT_0816",
+    "Chrysosporium_queenslandicum_28077",
+    "Cryptococcus_neoformans_KN99",
+    "Epidermophyton_floccosum_100148",
+    "Epidermophyton_floccosum_10867",
+    "Epidermophyton_floccosum_130802",
+    "Histoplasma_capsulatum_G186A",
+    "Hortaea_werneckii_100455",
+    "Hortaea_werneckii_1163",
+    "Hortaea_werneckii_41051",
+    "Malassezia_dermatis_9169",
+    "Malassezia_equina_9969",
+    "Malassezia_furfur_141402",
+    "Malassezia_furfur_1878",
+    "Malassezia_furfur_6000",
+    "Malassezia_globosa_7705",
+    "Malassezia_globosa_7886",
+    "Malassezia_globosa_8744",
+    "Malassezia_pachydermatis_21004",
+    "Malassezia_restricta_7877",
+    "Malassezia_restricta_7991",
+    "Malassezia_sympodialis_44340",
+    "Microsporum_audouinii_119449",
+    "Microsporum_audouinii_33268",
+    "Microsporum_canis_113480",
+    "Microsporum_canis_15669",
+    "Microsporum_canis_44551",
+    "Microsporum_ferrugineum_131111",
+    "Microsporum_ferrugineum_37371",
+    "Nakaseomyces_glabratus_11311",
+    "Nakaseomyces_glabratus_138",
+    "Nakaseomyces_glabratus_15698",
+    "Nannizzia_gypsea_17164",
+    "Pichia_kudriavzevii_5732",
+    "Rhodotorula_toruloides_Z1",
+    "Saccharomyces_cerevisiae_wine010",
+    "Trichophyton_concentricum_109405",
+    "Trichophyton_concentricum_19626",
+    "Trichophyton_indotineae_BE17",
+    "Trichophyton_interdigitale_BE4",
+    "Trichophyton_kuryangei_IHEM13979",
+    "Trichophyton_mentagrophytes_124404",
+    "Trichophyton_mentagrophytes_43573",
+    "Trichophyton_rubrum_117539",
+    "Trichophyton_rubrum_17065",
+    "Trichophyton_rubrum_28986",
+    "Trichophyton_rubrum_73588",
+    "Trichophyton_schoenleinii_45859",
+    "Trichophyton_schoenleinii_85571",
+    "Trichophyton_soudanese_IHEM19743",
+    "Trichophyton_tonsurans_112188",
+    "Trichophyton_tonsurans_12935",
+    "Trichophyton_tonsurans_72988",
+    "Trichophyton_violaceum_73088",
+    "Trichosporon_ovoides_4098",
+    "Trichosporon_ovoides_7612",
+    "Trichosporon_ovoides_9430"
+  ),
+  species = c(
+    "Aspergillus_fumigatus" ,"Candida_albicans","Candida_dubliniensis"
+    ,"Candida_dubliniensis", "Candida_dubliniensis","Candida_metapsilosis",
+    "Candida_orthopsilosis","Candida_parapsilosis", "Candida_parapsilosis","Candida_tropicalis","Chrysosporium_queenslandicum",
+    "Cryptococcus_neoformans","Epidermophyton_floccosum","Epidermophyton_floccosum",
+    "Epidermophyton_floccosum","Histoplasma_capsulatum","Hortaea_werneckii" ,"Hortaea_werneckii","Hortaea_werneckii","Malassezia_dermatis","Malassezia_equina",
+    "Malassezia_furfur","Malassezia_furfur","Malassezia_furfur","Malassezia_globosa",
+    "Malassezia_globosa","Malassezia_globosa","Malassezia_pachydermatis",
+    "Malassezia_restricta","Malassezia_restricta","Malassezia_sympodialis",
+    "Microsporum_audouinii","Microsporum_audouinii","Microsporum_canis",
+    "Microsporum_canis","Microsporum_canis","Microsporum_ferrugineum",
+    "Microsporum_ferrugineum","Nakaseomyces_glabratus","Nakaseomyces_glabratus",
+    "Nakaseomyces_glabratus", "Nannizzia_gypsea","Pichia_kudriavzevii",
+    "Rhodotorula_toruloides","Saccharomyces_cerevisiae", "Trichophyton_concentricum",
+    "Trichophyton_concentricum" ,   "Trichophyton_indotineae"  ,   "Trichophyton_interdigitale",
+    "Trichophyton_kuryangei"   ,    "Trichophyton_mentagrophytes" , "Trichophyton_mentagrophytes", 
+    "Trichophyton_rubrum"      ,    "Trichophyton_rubrum"     ,    "Trichophyton_rubrum"    ,   
+    "Trichophyton_rubrum"     ,     "Trichophyton_schoenleinii"  ,  "Trichophyton_schoenleinii",
+    "Trichophyton_soudanese"     ,  "Trichophyton_tonsurans"   ,   "Trichophyton_tonsurans"  , 
+    "Trichophyton_tonsurans"    ,   "Trichophyton_violaceum"  ,     "Trichosporon_ovoides"   ,    
+    "Trichosporon_ovoides"       ,  "Trichosporon_ovoides"),
+  genus = c(
+    "Aspergillus",
+    rep("Candida", 9),
+    "Chrysosporium",
+    "Cryptococcus",
+    rep("Epidermophyton", 3),
+    "Histoplasma",
+    rep("Hortaea", 3),
+    rep("Malassezia", 12),
+    rep("Microsporum", 7),
+    rep("Nakaseomyces", 3),
+    "Nannizzia",
+    "Pichia",
+    "Rhodotorula",
+    "Saccharomyces",
+    rep("Trichophyton", 18),
+    rep("Trichosporon", 3)
+  ),
+  family = c(
+    "Trichocomaceae",     # Aspergillus
+    rep("Debaryomycetaceae", 9),  # Candida spp.
+    "Onygenaceae",        # Chrysosporium
+    "Tremellaceae",       # Cryptococcus
+    rep("Arthrodermataceae", 3),  # Epidermophyton
+    "Ajellomycetaceae",   # Histoplasma
+    rep("Teratosphaeriaceae", 3), # Hortaea
+    rep("Malasseziaceae", 12),    # Malassezia spp.
+    rep("Arthrodermataceae", 7),  # Microsporum spp.
+    rep("Saccharomycetaceae", 3), # Nakaseomyces glabratus
+    "Arthrodermataceae",  # Nannizzia
+    "Saccharomycetaceae", # Pichia
+    "Sporidiobolaceae",   # Rhodotorula
+    "Saccharomycetaceae", # Saccharomyces
+    rep("Arthrodermataceae", 18), # Trichophyton spp.
+    rep("Trichosporonaceae", 3)   # Trichosporon spp.
+  ),
+  stringsAsFactors = FALSE
+)
+
+```
+
+species order (for plotting)
+```{r}
+species_order <- c("Rhodotorula toruloides", "Cryptococcus neoformans", "Trichosporon ovoides",
+                   "Malassezia furfur", "Malassezia equina", "Malassezia dermatis", "Malassezia sympodialis", 
+                   "Malassezia pachydermatis", "Malassezia restricta", "Malassezia globosa", 
+                   "Pichia kudriavzevii", "Saccharomyces cerevisiae", "Nakaseomyces glabratus",
+                   "Candida metapsilosis", "Candida orthopsilosis", "Candida parapsilosis", "Candida tropicalis", 
+                   "Candida albicans", "Candida dubliniensis",
+                   "Hortaea werneckii",  "Aspergillus fumigatus", "Histoplasma capsulatum", 
+                   "Chrysosporium queenslandicum", 
+                   "Microsporum canis", "Microsporum audouinii", "Microsporum ferrugineum", 
+                   "Nannizzia gypsea", "Epidermophyton floccosum", "Trichophyton schoenleinii",
+                   "Trichophyton tonsurans", "Trichophyton mentagrophytes", "Trichophyton indotineae",
+                   "Trichophyton interdigitale", "Trichophyton concentricum", "Trichophyton soudanese",
+                   "Trichophyton kuryangei", "Trichophyton rubrum", "Trichophyton violaceum" )
+```
+
+
+
+
+## KEGG & EC
+
+KEGG
+```{r}
+summary_df <- read.csv("../generated/species_kegg_category_summary.csv")
+```
+
+EC
+```{r}
+hydro_summary <- read.csv("../generated/EC_hydrolase_summary.csv")
+```
+
+
+Plotting KEGG
+```{r}
+selected_categories <- c("Amino acid metabolism", "Carbohydrate metabolism", "Energy metabolism", 
+                         "Lipid metabolism", "Nucleotide metabolism")
+
+plot_summary_df <- summary_df %>%
+  group_by(species) %>%
+  mutate(catprop = GeneCount / sum(GeneCount) * 100) %>%
+  ungroup() %>%
+  filter(Category %in% selected_categories) 
+
+plot_summary_df$species <- sub("_", " ", plot_summary_df$species)
+plot_summary_df$Category <- sub("metabolism", "", plot_summary_df$Category)
+
+plot_summary_df$species <- factor(plot_summary_df$species, levels = rev(species_order))
+
+KEGG_plot <- ggplot(plot_summary_df, aes(y = species, x = catprop, fill = Category)) +
+  geom_bar(stat = "identity", position = "identity", alpha = 0.9) +  
+  theme_minimal() +
+  theme(axis.ticks.x = element_blank(), panel.spacing = unit(1.3, "lines"), axis.title = element_blank(),
+        panel.grid.minor = element_blank(), panel.grid.major.y = element_blank(),
+        panel.grid.major.x = element_line(colour = "grey80", linetype = "dashed"),
+        axis.text.y = element_text(face = "bold.italic", color = "black", size = 7),
+        strip.background = element_blank(),
+        strip.text = element_text(size = 8, face = "bold", color = "black")) +
+  facet_wrap(~Category, nrow = 1, scales = "free_x")+
+#  expand_limits(x = c(NA, 15))+
+  guides(fill = 'none')
+KEGG_plot
+
+```
+
+
+### Testing differences in % of genes in functional categories
+
+```{r}
+taxonomy_subset <- taxonomy %>% dplyr::select(-sample) %>% mutate(species = sub("_", " ", species)) %>%
+  group_by(species) %>% summarise(genus = first(genus), family = first(family))
+
+KEGG_df <- left_join(plot_summary_df, taxonomy_subset, by = "species")
+
+hydro_summary$species <- sub("_", " ", hydro_summary$species)
+EC_df <- left_join(hydro_summary, taxonomy_subset, by = "species")
+```
+
+Kruskal–Wallis test, is at least one family different in each category
+
+```{r}
+print(unique(KEGG_df$genus))
+print(unique(KEGG_df$family))
+
+kw_results <- KEGG_df %>%
+  group_by(Category) %>%
+  kruskal_test(catprop ~ genus) %>%
+  mutate(p.adj = p.adjust(p, method = "BH"))
+
+kw_results
+
+kw_results <- KEGG_df %>%
+  group_by(Category) %>%
+  kruskal_test(catprop ~ family) %>%
+  mutate(p.adj = p.adjust(p, method = "BH"))
+
+kw_results
+
+
+## EC GENERA
+
+kw_results <- EC_df %>%
+  group_by(Hydrolase_sub) %>%
+  kruskal_test(catprop ~ genus) %>%
+  mutate(p.adj = p.adjust(p, method = "BH"))
+
+kw_results
+
+## EC FAMILY
+
+kw_results <- EC_df %>%
+  group_by(Hydrolase_sub) %>%
+  kruskal_test(catprop ~ family) %>%
+  mutate(p.adj = p.adjust(p, method = "BH"))
+
+kw_results
+
+```
+
+KEGG pairwise
+```{r}
+#For KEGG all except carbohydrates were significant 
+
+KEGG_filt <- KEGG_df %>% filter(Category != "Carbohydrate ") 
+
+print(unique(KEGG_filt$genus))
+
+posthoc <- KEGG_filt %>%
+  group_by(Category) %>%
+  dunn_test(catprop ~ genus, p.adjust.method = "BH")
+
+posthoc[posthoc$p.adj.signif != "ns",]
+
+#write.csv(posthoc, "../generated/KEGG_pw_genus.csv")
+
+KEGG_filt <- KEGG_df %>% filter(Category != "Carbohydrate ") 
+
+print(unique(KEGG_filt$family))
+
+posthoc <- KEGG_filt %>%
+  group_by(Category) %>%
+  dunn_test(catprop ~ family, p.adjust.method = "BH")
+
+posthoc[posthoc$p.adj.signif != "ns",]
+
+#write.csv(posthoc, "../generated/KEGG_pw_family.csv")
+```
+
+
+EC pairwise
+```{r}
+# all EC categories were significant in the KW test
+
+# Genus
+EC_filt <- EC_df 
+
+posthoc <- EC_filt %>%
+  group_by(Hydrolase_sub) %>%
+  dunn_test(catprop ~ genus, p.adjust.method = "BH")
+
+posthoc[posthoc$p.adj.signif != "ns",]
+
+#write.csv(posthoc, "../generated/EC_pw_genus.csv")
+
+# Family
+
+posthoc <- EC_filt %>%
+  group_by(Hydrolase_sub) %>%
+  dunn_test(catprop ~ family, p.adjust.method = "BH")
+
+posthoc[posthoc$p.adj.signif != "ns",]
+
+#write.csv(posthoc, "../generated/EC_pw_family.csv")
+```
+
+```{r}
+rm(EC_df, EC_filt, hydro_summary, KEGG_df, KEGG_filt, posthoc, kw_results, plot_summary_df, summary_df, selected_categories, KEGG_plot)
+```
+
+
+## Predicted secreted metabolic enzymes - Fig 5 
+
+
+### Number of predicted secreted across all - testing w binomial dist if they're significantly different
+
+```{r}
+all_anno <- read.csv("../generated/all_annotations_combined.tsv")
+all_anno$X <- NULL
+```
+
+
+```{r}
+secreted <- all_anno %>% filter(signalp == "True")
+
+sum(!is.na(all_anno$signalp))
+
+secr_sum <- all_anno %>% group_by(strain_id) %>% summarise(species = first(species), tot_genes = n(), secr = sum(!is.na(signalp))) %>% 
+            mutate(prop_secr <- secr/tot_genes)
+
+
+secr_sum$genus <- str_split_fixed(secr_sum$species, "_", 2)[, 1]
+```
+
+Binomial testing (its two-case scenario, but the number of gene difference also matter) - quasi handles the biased sample sizes better
+```{r}
+model <- glm(cbind(secr, tot_genes - secr) ~ species,
+             data = secr_sum, 
+             family = quasibinomial)
+
+anova(model, test = "F")
+# Significant effect of species on the proportion of secreted genes
+```
+
+pairwise
+```{r}
+pw_secr_test <- as.data.frame(emmeans(model, pairwise ~ species, type = "response", adjust = "BH")$contrasts)
+pw_secr_test$sig <- pw_secr_test$p.value < 0.05
+
+pw_secr_test$sample1 <- str_split_fixed(pw_secr_test$contrast, " / ", 2)[, 1]
+pw_secr_test$sample2 <- str_split_fixed(pw_secr_test$contrast, " / ", 2)[, 2]
+
+t <- pw_secr_test %>% filter(sig == "TRUE") 
+head(t)
+table(rbind(t$sample1, t$sample2))
+
+#write.csv(pw_secr_test, "../generated/pw_secreted_test.csv")
+```
+
+
+### Secreted enzymes with different targets
+
+#### Setup
+```{r}
+library(readxl)
+test_cur <- read_xlsx("../generated/1211_manual_cur_secreted.xlsx")
+test_cur$netgpi_geneswithgpi <- as.numeric(test_cur$netgpi_geneswithgpi)
+```
+
+```{r}
+collapsed_df <- test_cur %>% 
+  filter(!category == "NA") %>%
+  dplyr::select(-c("description", "IPR", "PFAM", "EC", "COG", "canonical", "pfam_names")) %>%
+  mutate(desc_collapse = str_trim(tolower(desc_collapse))) %>%
+  group_by(desc_collapse) %>%
+  summarise(OG = paste(unique(OG), collapse = "; "),
+            category = first(category),
+            number_of_species = max(number_of_species, na.rm = TRUE),
+            total_genec = sum(total_genec, na.rm = TRUE),
+            number_of_genera = max(number_of_genera, na.rm = TRUE),
+            number_of_families = max(number_of_families, na.rm = TRUE),
+            signalp = sum(as.numeric(signalp), na.rm = TRUE),
+            tmhmm_geneswtmh = sum(as.numeric(tmhmm_geneswtmh), na.rm = TRUE),
+            netgpi_geneswithgpi = sum(netgpi_geneswithgpi, na.rm = TRUE),
+            across(all_of(names(.)[9:(ncol(.)-1)]), ~ sum(.x, na.rm = TRUE)),
+            )
+
+```
+
+```{r}
+collapsed_filtered <- collapsed_df %>%
+  filter(tmhmm_geneswtmh < 0.7*signalp) %>%
+  filter(number_of_species > 2)
+
+plot_df <- collapsed_filtered %>% dplyr::select(desc_collapse, category, names(collapsed_df)[11:76])
+
+plot_df_long <- pivot_longer(plot_df, cols = -c(desc_collapse, category), names_to = "sample", values_to = "gene_copies")
+
+plot_df_long <- merge(plot_df_long, taxonomy[1:2], by = "sample")
+length(unique(plot_df_long$sample))
+```
+
+
+Since we consider all genes in an OG as secreted if more than 1/3 of the genes are signalp positive and less than 70% TMHMM positive, we should consider the offset to be the sum of all genes (in a sample) that are in OGs considered secreted.
+```{r}
+total_secr_OG_genec_sampl <- colSums(test_cur[15:80])
+
+test_secr_df <- plot_df_long 
+test_secr_df$total_secreted <- total_secr_OG_genec_sampl[test_secr_df$sample]
+
+subset_cats <- c("carbohydrate metabolism", "lipid metabolism", "protein metabolism")
+
+test_secr_df <- test_secr_df %>% filter(category %in% subset_cats)
+test_secr_df$sample <- sub("-", "_", test_secr_df$sample)
+
+test_secr_df <- left_join(test_secr_df, taxonomy, by = "sample")
+
+#tryout sans hybrids
+# hybrid_samples <- c("Malassezia_furfur_1878", "Malassezia_furfur_6000", "Trichosporon_ovoides_9430", "Hortaea_werneckii_41051", "Hortaea_werneckii_100455")
+# test_secr_df <- test_secr_df %>% filter(!sample %in% hybrid_samples)
+
+```
+
+
+Plotting 
+
+
+plotting the metabolism
+```{r, fig.show="inline", fig.width=10, fig.height=8}
+library(pheatmap)
+
+plot_df <- read.csv("../generated/plot5_df.csv", check.names=FALSE, row.names = 1)
+
+subset_cats <- c("carbohydrate metabolism", "lipid metabolism", "protein metabolism")
+
+# Filter and order the dataframe
+plot_df_sub <- plot_df %>%
+  filter(category %in% subset_cats) %>%
+  mutate(category = factor(category, levels = subset_cats)) %>%
+  arrange(category)
+
+# numeric matrix
+num_df <- plot_df_sub[, species_order] %>%
+  mutate(across(everything(), as.numeric))
+mat <- as.matrix(num_df)
+rownames(mat) <- rownames(plot_df_sub)
+
+# Z scores for colour scale
+mat_z <- t(scale(t(mat)))  # center and scale each row
+rownames(mat_z) <- rownames(mat)
+mat_z[mat_z > 2] <- 2
+mat_z[mat_z < -2] <- -2
+
+# ----- 4. Build annotation -----
+annotation_row <- data.frame(Category = plot_df_sub$category)
+rownames(annotation_row) <- rownames(mat)  # align annotation with matrix
+
+# ----- 5. Compute white gaps -----
+gaps_row <- cumsum(table(plot_df_sub$category))
+gaps_row <- gaps_row[1:3]
+
+# ---- Numeric labels ----
+num_labels <- matrix(round(mat, 1), nrow = nrow(mat), ncol = ncol(mat))
+rownames(num_labels) <- rownames(mat)
+colnames(num_labels) <- colnames(mat)
+
+# ---- Plot ----
+plot <- pheatmap(mat_z,
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         #annotation_row = annotation_row,
+         show_rownames = TRUE,
+         show_colnames = TRUE,
+         fontsize_row = 10,        # size of y-axis (row) labels
+         fontsize_col = 12,       # size of x-axis labels
+         display_numbers = num_labels,
+         number_color = "black",
+         fontsize_number = 8,
+         gaps_row = gaps_row,
+         border_color = "white",
+         color = article_pallette, 
+         angle_col = 90,
+         legend = FALSE,
+         cellheight=9,
+         cellwidth=10)
+
+plot
+rownames(mat_z)
+```
+
+
+#### Carbohydrates 
+
+```{r, include=FALSE}
+library(MASS)
+```
+
+```{r, warning=FALSE}
+df_carbs <- test_secr_df %>% filter(category == "carbohydrate metabolism")
+
+model_carbs <- glm.nb(gene_copies ~ genus + offset(log(total_secreted)),
+       data = df_carbs)
+
+anova(model_carbs, test = "Chisq")
+
+```
+
+Testing each narrow category by iterating over them
+```{r, warning=FALSE}
+
+res_carb <- df_carbs %>%
+  group_by(desc_collapse) %>%
+  group_modify(~{
+    m <- glm.nb(
+      gene_copies ~ genus + offset(log(total_secreted)),
+      data = .x
+    )
+    a <- anova(m, test = "Chisq")
+    tibble(
+      p_value = a$`Pr(>Chi)`[2]
+    )
+  }) %>%
+  ungroup() %>%
+  mutate(p_adj = p.adjust(p_value, method = "BH"), sig = p_adj<0.05) 
+
+print(res_carb[res_carb$sig == FALSE,])
+non_sig_cats <- res_carb[res_carb$sig == FALSE,]$desc_collapse
+#Chitosanase is not sig, we take it out of the pairwise
+
+lst_carb <- list()
+
+df_carbs %>%
+  filter(!desc_collapse %in% non_sig_cats) %>%
+  group_by(desc_collapse) %>%
+  group_walk(~{
+    # .x is the data for this category, .y$desc_collapse is the category name
+    m <- glm.nb(gene_copies ~ genus + offset(log(total_secreted)),
+                data = .x)
+    
+    # pairwise contrasts
+    pw <- as.data.frame(emmeans(m, pairwise ~ genus, type="response", adjust="BH")$contrasts)
+    
+    # store in the list under the category name
+    lst_carb[[.y$desc_collapse]] <<- pw  # note the <<- for global assignment
+  })
+
+head(lst_carb$`sugar metabolism`)
+```
+
+Save individual pairwise pr. annotation as one long table 
+```{r}
+long_carb <- bind_rows(lst_carb, .id = "annotation")
+#write.csv(long_carb, "../generated/secr_carb_pw.csv")
+rm(long_carb, lst_carb)
+```
+
+
+#### Lipid
+
+```{r, warning=FALSE}
+df_lipid <- test_secr_df %>% filter(category == "lipid metabolism") 
+
+model_lipid <- glm.nb(gene_copies ~ genus + offset(log(total_secreted)),
+       data = df_lipid)
+
+anova(model_lipid, test = "Chisq")
+```
+
+
+```{r, warning=FALSE}
+res_lipid <- df_lipid %>%
+  group_by(desc_collapse) %>%
+  group_modify(~{
+    m <- glm.nb(
+      gene_copies ~ genus + offset(log(total_secreted)),
+      data = .x
+    )
+    a <- anova(m, test = "Chisq")
+    tibble(
+      p_value = a$`Pr(>Chi)`[2]
+    )
+  }) %>%
+  ungroup() %>%
+  mutate(p_adj = p.adjust(p_value, method = "BH"), sig = p_adj<0.05) 
+
+print(res_lipid[res_lipid$sig == FALSE,])
+non_sig_cats <- res_lipid[res_lipid$sig == FALSE,]$desc_collapse
+lst_lipid <- list()
+
+df_lipid %>%
+  filter(!desc_collapse %in% non_sig_cats) %>%
+  group_by(desc_collapse) %>%
+  group_walk(~{
+    # .x is the data for this category, .y$desc_collapse is the category name
+    m <- glm.nb(gene_copies ~ genus + offset(log(total_secreted)),
+                data = .x)
+    
+    # pairwise contrasts
+    pw <- as.data.frame(emmeans(m, pairwise ~ genus, type="response", adjust="BH")$contrasts)
+    
+    # store in the list under the category name
+    lst_lipid[[.y$desc_collapse]] <<- pw  # note the <<- for global assignment
+  })
+
+head(lst_lipid$lipase)
+```
+
+Save individual pairwise pr. annotation as one long table 
+```{r}
+long_lipid <- bind_rows(lst_lipid, .id = "annotation")
+#write.csv(long_lipid, "../generated/secr_lipid_pw.csv")
+rm(long_lipid, lst_lipid)
+```
+
+
+#### Protein
+
+
+```{r, warning=FALSE}
+df_protein <- test_secr_df %>% filter(category == "protein metabolism")
+
+model_protein <- glm.nb(gene_copies ~ genus + offset(log(total_secreted)),
+       data = df_protein)
+
+anova(model_protein, test = "Chisq")
+
+```
+
+```{r, warning=FALSE}
+res_protein <- df_protein %>%
+  group_by(desc_collapse) %>%
+  group_modify(~{
+    m <- glm.nb(
+      gene_copies ~ genus + offset(log(total_secreted)),
+      data = .x
+    )
+    a <- anova(m, test = "Chisq")
+    tibble(
+      p_value = a$`Pr(>Chi)`[2]
+    )
+  }) %>%
+  ungroup() %>%
+  mutate(p_adj = p.adjust(p_value, method = "BH"), sig = p_adj<0.05) 
+
+print(res_protein[res_protein$sig == FALSE,])
+non_sig_cats <- res_protein[res_protein$sig == FALSE,]$desc_collapse
+
+lst_protein <- list()
+
+df_protein %>%
+  filter(!desc_collapse %in% non_sig_cats) %>%
+  group_by(desc_collapse) %>%
+  group_walk(~{
+    # .x is the data for this category, .y$desc_collapse is the category name
+    m <- glm.nb(gene_copies ~ genus + offset(log(total_secreted)),
+                data = .x)
+    
+    # pairwise contrasts
+    pw <- as.data.frame(emmeans(m, pairwise ~ genus, type="response", adjust="BH")$contrasts)
+    
+    # store in the list under the category name
+    lst_protein[[.y$desc_collapse]] <<- pw  # note the <<- for global assignment
+  })
+
+head(lst_protein$`aspartyl protease`)
+```
+
+Save individual pairwise pr. annotation as one long table 
+```{r}
+long_protein <- bind_rows(lst_protein, .id = "annotation")
+#rite.csv(long_protein, "../generated/secr_protein_pw.csv")
+rm(long_protein, lst_protein)
+```
+
+
+Save all res tables in one file
+```{r}
+full_res <- rbind(res_carb, res_lipid, res_protein)
+#write.csv(full_res, "../generated/secreted_cat_anova.csv")
+```
+
+```{r, include=FALSE, warning=FALSE}
+rm(df_carbs, df_lipid, df_protein, glm_rep, mat, mat_z, model, model_carbs, model_lipid, model_protein, pairwise_protein, pw, pw_secr_test, res_carb, res_lipid, res_protein, secreted, test_cur, test_secr_df, plot, plot_df, plot_df_long, plot_df_sub, secr_sum, t, taxonomy_subset, num_df, collapsed_df, collapsed_filtered, num_labels, annotation_row)
+```
+
+
+## Adhesins 
+
+```{r}
+total_genes <- all_anno %>% group_by(strain_id) %>% summarise(species = first(species), tot_genes = n())
+
+# All_anno has old strain numbers, they need to be updated:
+old_nr_to_cbs <- c(
+  "1" = "10867",
+  "3" = "4098", 
+  "6" = "112188",
+  "8" = "45859",
+  "9" = "124404",
+  "10" = "1163",
+  "11" = "138",
+  "12" = "1954",
+  "13" = "15669",
+  "27" = "7705",
+  "28" = "7877",
+  "29" = "141402",
+  "31" = "5732",
+  "32" = "28986",
+  "34" = "2747",
+  "410" = "41051",
+  "332" = "33268",
+  "445" = "44551",
+  "171" = "17164", 
+  "435" = "43573",
+  "735" = "73588",
+  "855" = "85571",
+  "129" = "12935",
+  "739" = "72988",
+  "730" = "73088")
+
+total_genes <- total_genes %>%
+  mutate(strain_id = if_else(strain_id %in% names(old_nr_to_cbs),
+                             old_nr_to_cbs[strain_id],
+                             strain_id))
+
+total_genes$sample <- paste(total_genes$species, total_genes$strain_id, sep = "_")
+```
+
+
+```{r}
+gpi_plot_df_long <- read.csv("../generated/gpi_plot_df_long.csv")
+
+gpi_sum <- gpi_plot_df_long %>% filter(category == "adhesin-associated") %>% group_by(sample) %>% summarise(tot_gpi = sum(gene_copies))
+
+gpi_sum <- left_join(gpi_sum, total_genes, by = 'sample')
+
+gpi_sum$non_gpi_genes <- gpi_sum$tot_genes - gpi_sum$tot_gpi
+
+gpi_sum$sample <- sub("-", "_", gpi_sum$sample)
+gpi_sum <- left_join(gpi_sum, taxonomy, by = c("sample", "species"))
+
+gpi_sum <- gpi_sum %>%
+  mutate(
+    genus = as.factor(genus),
+    species = as.factor(species)
+  )
+
+gpi_sum$adhesin_prop <- gpi_sum$tot_gpi / gpi_sum$tot_genes
+```
+
+Kruskal-Wallis test - is any across all significantly different? 
+
+```{r}
+kruskal.test(adhesin_prop ~ genus, data = gpi_sum)
+#significant
+```
+
+Doing all vs. rest to test which genera (if any) are significantly different than the rest:
+```{r}
+res <- lapply(levels(gpi_sum$genus), function(g) {
+  w <- wilcox.test(adhesin_prop ~ (genus == g), data = gpi_sum, p.adjust.method = "BH")
+  data.frame(genus = g, p_value = w$p.value)
+})
+
+one_vs_rest_genus <- do.call(rbind, res)
+one_vs_rest_genus$p_adj <- p.adjust(one_vs_rest_genus$p_value, method = "BH")
+
+one_vs_rest_genus[order(one_vs_rest_genus$p_adj),]
+```
+

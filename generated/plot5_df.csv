@@ -1,0 +1,68 @@
+"","category","Aspergillus fumigatus","Candida albicans","Candida dubliniensis","Candida metapsilosis","Candida orthopsilosis","Candida parapsilosis","Candida tropicalis","Chrysosporium queenslandicum","Cryptococcus neoformans","Epidermophyton floccosum","Histoplasma capsulatum","Hortaea werneckii hybrid","Hortaea werneckii","Malassezia furfur hybrid","Malassezia dermatis","Malassezia equina","Malassezia furfur","Malassezia globosa","Malassezia pachydermatis","Malassezia restricta","Malassezia sympodialis","Microsporum audouinii","Microsporum canis","Microsporum ferrugineum","Nakaseomyces glabratus","Nannizzia gypsea","Pichia kudriavzevii","Rhodotorula toruloides","Saccharomyces cerevisiae","Trichophyton concentricum","Trichophyton indotineae","Trichophyton interdigitale","Trichophyton kuryangei","Trichophyton mentagrophytes","Trichophyton rubrum","Trichophyton schoenleinii","Trichophyton soudanese","Trichophyton tonsurans","Trichophyton violaceum","Trichosporon ovoides hybrid","Trichosporon ovoides"
+"Aldose 1-Epimerase","carbohydrate metabolism",2,0,0,0,0,0,0,1,0,1,1,4,3,0,0,0,0,0,0,0,0,1,1,1,0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,2,1
+"Beta-Glucosidase","carbohydrate metabolism",10,8,8,8,7,8,8,7,7,9,6,34,18,7,2,1,3,3,3,2,2,8,8,8,9,8,6,6,9,8,8,8,8,8,8,8,9,8,8,15,8
+"Cellulose Degradation","carbohydrate metabolism",11,1,1,2,1,1,1,5,1,4,4,32,20,0,0,0,0,0,0,0,0,4,4,4,1,3,1,2,1,4,5,5,5,5,5,4,5,4,5,4,2
+"Chitin Degradation","carbohydrate metabolism",4,0,0,0,0,0,0,2,1,1,0,0,0,0,0,0,0,0,0,0,0,11,11,12,0,8,0,0,0,2,4,4,3,4,3,4,3,3,3,2,1
+"Chitinase","carbohydrate metabolism",6,4,1,5,6,3,4,2,3,5,1,4,3,8,5,6,8,4,6,2,5,6,6,5,2,4,1,5,3,4,6,5,5,5,5,5,5,4,6,8,4
+"Chitosanase","carbohydrate metabolism",5,1,1,1,1,1,1,2,1,2,1,2,1,2,1,1,1,1,1,1,1,2,2,2,1,3,1,1,1,3,2,3,2,3,2,2,2,3,3,2,0
+"Glucan-Modifying","carbohydrate metabolism",8,1,1,1,1,1,1,1,0,1,1,8,5,0,0,0,0,0,0,0,0,1,1,1,2,1,3,0,2,1,1,1,1,1,1,1,1,1,1,0,0
+"Glycoside Hydrolase","carbohydrate metabolism",93,25,22,21,19,22,20,33,28,37,31,108,68,18,9,8,10,8,8,8,7,40,38,42,15,40,15,21,17,37,38,37,37,36,38,38,38,36,37,51,26
+"Lpmo","carbohydrate metabolism",10,0,0,0,0,0,0,1,1,1,1,5,3,0,0,0,0,0,0,0,0,1,1,1,0,1,0,4,0,1,1,1,1,1,1,1,1,1,1,4,2
+"Lytic Transglycolase","carbohydrate metabolism",2,1,1,2,1,1,1,3,6,2,2,2,1,8,4,3,3,2,5,3,4,2,2,2,0,3,1,8,0,3,3,3,3,4,3,4,3,3,4,9,5
+"Oxidative Sugar Metabolism","carbohydrate metabolism",9,0,0,0,0,0,0,7,2,2,5,28,16,4,2,2,1,4,2,3,2,3,4,4,0,3,0,3,0,2,2,2,2,2,2,2,2,2,2,11,4
+"Pectin Degradation","carbohydrate metabolism",13,0,0,0,0,0,0,0,1,0,0,24,13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+"Sialidase","carbohydrate metabolism",3,0,0,0,0,0,0,1,0,2,1,3,2,0,0,0,0,0,0,0,0,2,2,2,0,2,0,0,0,2,2,2,2,2,2,2,2,2,2,0,0
+"Six-Hairpin Glycosidase","carbohydrate metabolism",5,0,0,0,0,0,0,1,0,1,1,8,5,0,0,0,0,0,0,0,0,1,1,1,0,1,0,2,0,1,1,1,1,1,1,1,1,1,1,2,1
+"Sugar Metabolism","carbohydrate metabolism",9,11,10,12,11,11,12,6,5,6,5,13,10,6,2,2,3,2,2,2,2,7,6,6,3,6,5,5,3,7,6,6,6,6,6,6,6,7,6,9,5
+"Carboxylesterase","lipid metabolism",1,0,0,0,0,0,0,2,0,2,1,13,9,1,1,1,1,1,1,1,1,4,5,4,0,4,0,2,0,4,4,4,5,4,4,4,5,4,4,0,0
+"Cutinase","lipid metabolism",5,0,0,0,0,0,0,1,0,2,2,9,6,0,0,0,0,0,0,0,0,2,2,2,0,2,0,1,0,2,2,2,2,2,2,2,2,2,2,2,1
+"Gdsl-Like Lipase","lipid metabolism",8,0,0,0,0,0,0,5,0,5,4,8,5,2,1,1,1,1,2,0,1,3,4,5,0,1,0,1,0,2,1,1,2,1,2,1,2,1,2,0,0
+"Lipase","lipid metabolism",6,14,12,10,10,8,8,4,3,6,4,15,7,18,12,16,12,14,18,7,9,7,7,7,2,7,2,6,2,6,7,7,7,7,7,7,7,7,7,8,4
+"Lipid Binding/Transport","lipid metabolism",2,4,3,5,5,4,4,1,1,1,1,8,5,0,0,0,0,0,0,0,0,2,2,2,2,1,1,2,3,1,1,1,1,1,1,1,1,1,1,6,4
+"Lipid Synthesis","lipid metabolism",4,3,3,3,3,3,3,3,2,3,3,8,4,4,1,1,2,1,2,0,1,3,2,3,1,3,2,2,2,4,3,3,3,3,3,3,3,3,3,6,3
+"Phospholipase","lipid metabolism",5,6,6,8,9,8,8,5,2,4,3,6,3,4,1,2,2,2,2,2,1,4,4,4,3,4,2,3,3,4,4,4,4,4,4,4,4,4,4,7,4
+"Phospholipid Related","lipid metabolism",1,1,1,1,1,1,0,1,1,1,1,2,2,0,0,0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1
+"Sphingolipid Metabolism","lipid metabolism",9,4,4,7,7,4,6,1,2,1,0,7,4,6,4,4,2,4,4,4,4,1,1,1,0,1,0,4,0,1,1,1,1,1,1,1,1,1,1,11,4
+"Sphingomyelinase D","lipid metabolism",0,0,0,0,0,0,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,2,1,1,1,0,0
+"Tannase And Feruloyl Esterase","lipid metabolism",2,0,0,0,0,0,0,0,0,1,0,2,1,0,0,0,0,0,0,0,0,1,1,1,0,1,0,1,0,1,1,1,1,1,1,1,1,1,1,0,0
+"Amino-Acid Acting","protein metabolism",2,2,2,2,2,2,2,3,2,2,1,2,2,3,1,1,1,1,1,1,1,2,2,2,2,3,1,3,2,2,2,2,2,2,2,2,2,2,2,6,2
+"Aspartyl Protease","protein metabolism",5,11,6,13,21,14,17,5,7,4,5,10,6,12,6,8,6,13,8,10,5,6,6,7,11,6,7,12,6,7,7,7,7,6,6,6,7,6,6,11,8
+"Beta-Lactamase","protein metabolism",1,0,0,0,0,0,0,1,0,2,1,2,1,0,0,0,0,0,0,0,0,3,3,2,0,5,0,1,0,2,3,3,3,3,3,3,3,2,3,2,1
+"Carboxypeptidase","protein metabolism",7,3,3,5,6,5,4,8,1,8,6,12,6,8,3,4,4,2,6,3,3,9,8,8,1,8,2,3,2,8,9,9,9,8,8,9,9,8,8,8,4
+"Dipeptidyl-Peptidase","protein metabolism",2,0,0,0,0,0,0,4,1,2,2,2,1,2,1,1,1,0,1,1,1,2,2,2,0,2,0,1,0,2,2,2,2,2,2,2,2,2,2,2,1
+"Endopeptidase","protein metabolism",3,0,0,0,0,0,0,0,0,1,1,2,1,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0
+"Fungalysin M36","protein metabolism",1,0,0,0,0,0,0,2,1,5,0,0,0,0,0,0,0,0,0,0,0,5,5,5,0,5,0,1,0,5,5,5,5,5,5,5,5,5,5,2,1
+"Metalloprotease","protein metabolism",13,4,5,3,3,3,5,23,3,20,6,21,12,4,2,2,2,2,2,2,1,19,20,20,4,21,4,4,5,20,20,20,21,20,20,20,20,20,20,13,7
+"Peptiase S41","protein metabolism",1,0,0,0,0,0,0,2,0,4,1,3,2,0,0,0,0,0,0,0,0,2,2,2,0,3,0,0,0,3,4,3,3,3,3,3,3,3,3,0,0
+"Peptidase C19","protein metabolism",0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+"Peptidyl-Prolyl Isomerase","protein metabolism",1,2,2,2,2,2,2,4,2,1,1,2,1,2,1,1,1,2,1,2,1,1,1,1,2,1,2,2,2,1,1,1,1,1,1,1,1,1,1,4,2
+"Serine Protease","protein metabolism",1,0,0,0,0,0,0,2,1,1,1,6,3,0,0,0,0,0,0,0,0,2,2,2,0,3,0,5,0,2,3,2,1,2,2,2,1,2,2,0,0
+"Serine Protease (Subtilisin)","protein metabolism",7,4,4,3,4,4,4,20,2,14,6,9,5,6,2,3,3,1,3,1,3,17,17,16,3,16,1,1,3,16,17,17,16,17,16,17,16,17,16,4,2
+"Serine/Threonine Kinase","protein metabolism",2,1,1,1,1,1,2,2,2,2,2,4,2,4,1,1,3,2,3,2,2,2,2,2,2,2,2,3,2,3,2,2,2,2,2,2,2,2,2,4,2
+"Ubiquitin-Associated","protein metabolism",5,1,1,0,0,0,1,2,0,3,1,4,2,0,0,0,0,0,3,0,0,3,3,4,0,3,0,0,0,3,3,3,3,3,3,3,3,3,3,2,1
+"Arthropod Defensin","virulence associated",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+"Cfem Domain","virulence associated",4,7,6,7,9,9,11,4,0,4,4,4,2,0,0,0,0,0,0,0,0,4,4,4,1,3,1,1,1,4,4,4,4,4,4,2,4,4,3,0,0
+"Defensin, Invertebrate/Fungal","virulence associated",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,1,1,1,1,0,1,1,1,1,0,0
+"Fungal Hydrophobin","virulence associated",1,0,0,0,0,0,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0
+"Killer Toxin Resistant Protein","virulence associated",1,3,3,3,2,2,3,2,1,2,1,2,2,2,1,1,1,1,1,1,1,2,2,2,2,2,1,1,2,2,2,2,2,2,3,2,2,2,2,2,1
+"Necrosis-Inducing","virulence associated",2,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,1,2,0,1,0,0,0,3,2,2,2,2,2,2,2,1,1,0,0
+"Pathoproteinsis","virulence associated",0,7,5,6,7,6,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+"Cysteine Desulfurase","adhesin-associated",0,0,0,0,0,0,0,3,0,2,3,0,0,0,0,0,0,0,0,0,0,2,2,2,0,2,0,1,0,2,2,2,2,2,2,2,2,2,2,0,0
+"Ecm33","adhesin-associated",1,3,3,3,3,3,2,1,0,1,1,2,1,0,0,0,0,0,0,0,0,1,1,1,3,1,2,0,4,1,1,1,1,1,1,1,1,1,1,0,0
+"Fad/Nad(P)-Binding Domain","adhesin-associated",1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0
+"Fasciclin","adhesin-associated",2,0,0,0,0,0,0,5,1,3,3,9,5,0,0,0,0,0,0,0,0,3,3,3,1,2,0,2,1,3,3,3,3,3,3,3,3,3,3,2,1
+"Flocculin Repeat","adhesin-associated",0,4,3,9,8,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,3,0,3,0,0,0,0,0,0,0,0,0,0,0,0
+"Gpi-Anchored, Unannotated","adhesin-associated",6,26,18,21,21,20,33,5,2,7,7,6,3,2,2,2,1,2,2,1,1,6,5,8,0,8,0,1,0,6,8,8,6,8,7,9,6,7,5,4,2
+"Hydrophilin Pga14","adhesin-associated",0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+"Iff11","adhesin-associated",0,11,6,15,7,13,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+"Lysm Domain","adhesin-associated",0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,4,4,4,0,2,0,0,0,3,3,3,3,4,3,4,3,3,3,0,0
+"Pir","adhesin-associated",0,10,4,7,7,4,6,0,0,0,0,2,1,0,0,0,0,0,0,0,0,0,0,0,4,0,3,0,9,0,0,0,0,0,0,0,0,0,0,0,0
+"Yeast Cell Wall Synthesis Kre9/Knh1","adhesin-associated",0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,4,2
+"Alkaline Phosphatase",NA,1,0,0,0,0,0,0,1,0,1,1,2,1,0,0,0,0,0,0,0,0,1,1,1,0,1,0,1,0,1,1,1,1,1,1,1,1,1,1,1,1
+"Calcineurin-Like Phosphoesterase",NA,6,3,3,2,2,2,3,4,3,4,3,7,4,6,3,3,3,3,3,3,5,4,4,4,3,4,2,5,3,4,4,4,4,4,4,4,4,4,4,8,4
+"Nadp-Dependent Oxidoreductase",NA,3,0,0,0,0,0,0,1,0,2,1,1,0,0,4,4,0,6,6,7,5,1,1,1,0,1,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0
+"Phosphodiesterase",NA,1,0,0,0,0,0,0,1,0,1,1,2,1,0,0,0,0,0,0,0,0,1,1,1,0,1,0,0,0,1,1,1,1,1,1,1,1,1,1,2,1
+"Phosphoesterase",NA,2,0,0,0,0,0,0,0,0,0,0,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,2,1
+"Phytase-Like Domain",NA,1,0,0,0,0,0,0,1,0,1,1,2,1,0,0,0,0,0,0,0,0,1,1,1,0,1,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0
+"Prenylcysteine Lyase",NA,1,0,0,0,0,0,0,1,1,1,1,2,2,2,0,0,1,1,1,1,0,1,1,1,0,1,0,1,0,1,1,1,1,1,1,1,1,1,1,3,1
+"Sulfatase",NA,1,0,0,0,0,0,0,1,1,0,0,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,2
