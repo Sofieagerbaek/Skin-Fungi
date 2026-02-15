@@ -8,7 +8,7 @@
 # Track scripts/
 !scripts/
 
-# Exclusions within scripts/
+# Excluded from scripts/
 scripts/.DS_Store
 scripts/.Rhistory
 scripts/.vscode/
@@ -23,20 +23,25 @@ scripts/genome.fixedproducts
 scripts/tree_clean.txt
 scripts/tree_ids.txt
 scripts/2008_full_bp_busco_plot_bg.png
+scripts/data
+scripts/Orthogr_visualisations.rmd
+scripts/OG_annotation_visu.Rmd
+scripts/OG_visu.Rmd
+scripts/move_anno_files.sh
+scripts/split_signalp_fastas.sh
+scripts/parse_annotations_from_headers.py
+scripts/make_annotation_tsv.py
+scripts/new_annotations_to_tsv.py
+scripts/busco_pull.py
+scripts/clean_tree.py
 
 # Track generated/ - only whitelisted files
 !generated/
 generated/*
-
-# Manually curated data
 !generated/1211_manual_cur_secreted.xlsx
 !generated/gpi_manual_curated.xlsx
-
-# External reference data
 !generated/Pfam-A.clans.tsv
 !generated/busco_visu.xlsx
-
-# Final summary/plot data
 !generated/species_kegg_category_summary.csv
 !generated/EC_hydrolase_summary.csv
 !generated/plot5_df.csv

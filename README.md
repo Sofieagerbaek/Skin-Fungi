@@ -37,17 +37,10 @@ generated/         Curated data tables and summary files used by the analysis no
 | `run_ipr.sh` | InterProScan functional annotation |
 | `run_funannotate_annotate.sh` | Funannotate annotation with InterProScan results |
 | `busco.sh` | BUSCO completeness assessment on protein sets |
-| `busco_pull.py` | Parse BUSCO short summaries into a single TSV |
 | `run_signalp.sh` | SignalP6 signal peptide prediction |
 | `get_signalp_genes.py` | Extract SignalP-positive gene sequences |
-| `split_signalp_fastas.sh` | Split FASTA files for TMHMM/NetGPI batch submission |
 | `exclude_tmhmm.py` | Filter out genes with transmembrane helices |
 | `add_signalp_tmhmm_netgpi_to_anno_mat.py` | Merge SignalP, TMHMM, and NetGPI results into annotation matrix |
-| `make_annotation_tsv.py` | Parse FASTA header annotations into TSV |
-| `new_annotations_to_tsv.py` | Combine old and new annotation TSVs |
-| `parse_annotations_from_headers.py` | Extract annotations from FASTA headers |
-| `move_anno_files.sh` | Collect funannotate annotation files |
-| `clean_tree.py` | Clean species tree leaf labels |
 
 #### Analysis notebooks (R Markdown)
 
