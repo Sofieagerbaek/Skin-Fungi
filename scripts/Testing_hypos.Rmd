@@ -207,8 +207,6 @@ species_order <- c("Rhodotorula toruloides", "Cryptococcus neoformans", "Trichos
 ```
 
 
-
-
 ## KEGG & EC
 
 KEGG
@@ -404,17 +402,31 @@ anova(model, test = "F")
 
 pairwise
 ```{r}
-pw_secr_test <- as.data.frame(emmeans(model, pairwise ~ species, type = "response", adjust = "BH")$contrasts)
-pw_secr_test$sig <- pw_secr_test$p.value < 0.05
+pw_secr_test <- emmeans(model, pairwise ~ species, type = "response", adjust = "BH")$contrasts
+pw_secr_test_df <- as.data.frame(pw_secr_test)
+pw_secr_test_df$sig <- pw_secr_test_df$p.value < 0.05
 
-pw_secr_test$sample1 <- str_split_fixed(pw_secr_test$contrast, " / ", 2)[, 1]
-pw_secr_test$sample2 <- str_split_fixed(pw_secr_test$contrast, " / ", 2)[, 2]
+ci_pw <- confint(pw_secr_test)
 
-t <- pw_secr_test %>% filter(sig == "TRUE") 
+pw_secr_test_df <- pw_secr_test_df %>%
+  left_join(ci_pw %>% select(contrast, asymp.LCL, asymp.UCL), by = "contrast") %>%
+  rename(
+    CI_lower = asymp.LCL,
+    CI_upper = asymp.UCL
+  )
+
+pw_secr_test_df$sample1 <- str_split_fixed(pw_secr_test_df$contrast, " / ", 2)[, 1]
+pw_secr_test_df$sample2 <- str_split_fixed(pw_secr_test_df$contrast, " / ", 2)[, 2]
+pw_secr_test_df <- pw_secr_test_df %>% select(-c("contrast", "null", "df", "z.ratio"))
+
+t <- pw_secr_test_df %>% filter(sig == "TRUE") 
 head(t)
 table(rbind(t$sample1, t$sample2))
 
-#write.csv(pw_secr_test, "../generated/pw_secreted_test.csv")
+pw_secr_test_df <- pw_secr_test_df %>%
+  select(7, 8, everything())
+
+#write.csv(pw_secr_test_df, "../generated/pw_sp_secreted_test.csv", row.names = FALSE)
 ```
 
 
@@ -569,7 +581,7 @@ Testing each narrow category by iterating over them
 ```{r, warning=FALSE}
 
 res_carb <- df_carbs %>%
-  group_by(desc_collapse) %>%
+  group_by(category, desc_collapse) %>%
   group_modify(~{
     m <- glm.nb(
       gene_copies ~ genus + offset(log(total_secreted)),
@@ -577,6 +589,8 @@ res_carb <- df_carbs %>%
     )
     a <- anova(m, test = "Chisq")
     tibble(
+      chisq   = a$Deviance[2],
+      df      = a$Df[2],
       p_value = a$`Pr(>Chi)`[2]
     )
   }) %>%
@@ -610,7 +624,7 @@ head(lst_carb$`sugar metabolism`)
 Save individual pairwise pr. annotation as one long table 
 ```{r}
 long_carb <- bind_rows(lst_carb, .id = "annotation")
-#write.csv(long_carb, "../generated/secr_carb_pw.csv")
+#write.csv(long_carb, "../generated/secr_carb_pw.csv", row.names = FALSE)
 rm(long_carb, lst_carb)
 ```
 
@@ -629,7 +643,7 @@ anova(model_lipid, test = "Chisq")
 
 ```{r, warning=FALSE}
 res_lipid <- df_lipid %>%
-  group_by(desc_collapse) %>%
+  group_by(category, desc_collapse) %>%
   group_modify(~{
     m <- glm.nb(
       gene_copies ~ genus + offset(log(total_secreted)),
@@ -637,6 +651,8 @@ res_lipid <- df_lipid %>%
     )
     a <- anova(m, test = "Chisq")
     tibble(
+      chisq   = a$Deviance[2],
+      df      = a$Df[2],
       p_value = a$`Pr(>Chi)`[2]
     )
   }) %>%
@@ -668,7 +684,7 @@ head(lst_lipid$lipase)
 Save individual pairwise pr. annotation as one long table 
 ```{r}
 long_lipid <- bind_rows(lst_lipid, .id = "annotation")
-#write.csv(long_lipid, "../generated/secr_lipid_pw.csv")
+#write.csv(long_lipid, "../generated/secr_lipid_pw.csv", row.names = FALSE)
 rm(long_lipid, lst_lipid)
 ```
 
@@ -688,7 +704,7 @@ anova(model_protein, test = "Chisq")
 
 ```{r, warning=FALSE}
 res_protein <- df_protein %>%
-  group_by(desc_collapse) %>%
+  group_by(category, desc_collapse) %>%
   group_modify(~{
     m <- glm.nb(
       gene_copies ~ genus + offset(log(total_secreted)),
@@ -696,6 +712,8 @@ res_protein <- df_protein %>%
     )
     a <- anova(m, test = "Chisq")
     tibble(
+      chisq   = a$Deviance[2],
+      df      = a$Df[2],
       p_value = a$`Pr(>Chi)`[2]
     )
   }) %>%
@@ -728,7 +746,7 @@ head(lst_protein$`aspartyl protease`)
 Save individual pairwise pr. annotation as one long table 
 ```{r}
 long_protein <- bind_rows(lst_protein, .id = "annotation")
-#rite.csv(long_protein, "../generated/secr_protein_pw.csv")
+#write.csv(long_protein, "../generated/secr_protein_pw.csv", row.names = FALSE)
 rm(long_protein, lst_protein)
 ```
 
@@ -736,7 +754,7 @@ rm(long_protein, lst_protein)
 Save all res tables in one file
 ```{r}
 full_res <- rbind(res_carb, res_lipid, res_protein)
-#write.csv(full_res, "../generated/secreted_cat_anova.csv")
+#write.csv(full_res, "../generated/secreted_cat_anova.csv", row.names = FALSE)
 ```
 
 ```{r, include=FALSE, warning=FALSE}
@@ -826,4 +844,320 @@ one_vs_rest_genus$p_adj <- p.adjust(one_vs_rest_genus$p_value, method = "BH")
 
 one_vs_rest_genus[order(one_vs_rest_genus$p_adj),]
 ```
+
+## Virulence
+We use Fishers exact to test presence/abscence of putative virulence-associated genes between non-pathogenic outgroups and the skin pathobionts
+
+```{r}
+test_cur <- read_xlsx("../generated/1211_manual_cur_secreted.xlsx")
+
+virulence_assoc <- test_cur %>% filter(category == "virulence associated") %>%
+  dplyr::select(-c("description", "IPR", "PFAM", "EC", "COG", "canonical"))
+
+viru_non_secr <- read_xlsx("../generated/1211_manual_cur_secreted.xlsx", sheet = 2) %>%
+  filter(!OG %in% test_cur$OG) %>% dplyr::select(-c("description","IPR", "PFAM", "EC", "COG"))
+
+names(viru_non_secr)[9:75] <- sub("\\.", "-", names(viru_non_secr)[9:75])
+
+viru_non_secr$total_genec <- rowSums(viru_non_secr[9:74] != 0)
+
+viru_non_secr$secr <- FALSE
+virulence_assoc$secr <- TRUE
+
+comb_viru <- rbind(viru_non_secr, virulence_assoc) %>% filter(!category == "adhesin-associated")
+
+head(comb_viru)
+```
+
+
+```{r}
+viru_df_fish_test <- comb_viru %>% select(-c("number_of_species","signalp","tmhmm_geneswtmh",
+                                             "netgpi_geneswithgpi","number_of_genera",
+                                             "number_of_families", "pfam_names", "category",
+                                             "total_genec", "secr"))
+species_cols <- names(viru_df_fish_test)[3:68]
+
+#presence absence
+vir_binary <- viru_df_fish_test
+vir_binary[, species_cols] <- (vir_binary[, species_cols] > 0) * 1
+```
+
+
+Df for saving results
+```{r}
+fisher_results <- data.frame(
+  clade = character(),
+  group1 = character(),
+  group2 = character(),
+  odds_ratio = numeric(),
+  ci_lower = numeric(),
+  ci_upper = numeric(),
+  p_value = numeric(),
+  enrichment = character(),
+  stringsAsFactors = FALSE
+)
+```
+
+
+Malassezia vs. Rhodotorula
+
+```{r}
+pathogen_species <- grep("^(Mala)", 
+                      colnames(viru_df_fish_test), 
+                      value = TRUE)
+outgroup_species <- "Rhodotorula_toruloides_Z1"
+
+a <- sum(vir_binary[, pathogen_species])
+b <- length(pathogen_species) * nrow(vir_binary) - a
+
+c <- sum(vir_binary[, outgroup_species])
+d <- nrow(vir_binary) - c
+
+mat <- matrix(c(a, b, c, d), nrow = 2)
+ft <- fisher.test(mat)
+ft
+#sig P = 0.008338
+
+enrich <- ifelse(ft$estimate > 1, "Group1 enriched", "Group2 enriched")
+
+# Adding results as a new row to the df
+fisher_results <- rbind(fisher_results, data.frame(
+  clade = "Malassezia vs R. toruloides",
+  group1 = "Malassezia spp.",
+  group2 = "R. toruloides",
+  odds_ratio = as.numeric(ft$estimate),
+  ci_lower = ft$conf.int[1],
+  ci_upper = ft$conf.int[2],
+  p_value = ft$p.value,
+  enrichment = enrich,
+  stringsAsFactors = FALSE
+))
+```
+
+
+```{r}
+pathogen_species <- grep("^(Trichos)", 
+                      colnames(viru_df_fish_test), 
+                      value = TRUE)
+outgroup_species <- "Rhodotorula_toruloides_Z1"
+
+a <- sum(vir_binary[, pathogen_species])
+b <- length(pathogen_species) * nrow(vir_binary) - a
+
+c <- sum(vir_binary[, outgroup_species])
+d <- nrow(vir_binary) - c
+
+mat <- matrix(c(a, b, c, d), nrow = 2)
+ft <- fisher.test(mat)
+ft
+#not sig P = 0.1389
+
+enrich <- ifelse(ft$estimate > 1, "Group1 enriched", "Group2 enriched")
+
+# Adding results as a new row to the df
+fisher_results <- rbind(fisher_results, data.frame(
+  clade = "Trichosporon ovoides vs R. toruloides",
+  group1 = "T. ovoides",
+  group2 = "R. toruloides",
+  odds_ratio = as.numeric(ft$estimate),
+  ci_lower = ft$conf.int[1],
+  ci_upper = ft$conf.int[2],
+  p_value = ft$p.value,
+  enrichment = enrich,
+  stringsAsFactors = FALSE
+))
+```
+
+
+Candida, Pichia, Nakaseomyces vs. saccharomyces
+```{r}
+pathogen_species <- grep("^(Candida|Nakaseomyces|Pichia)", 
+                      colnames(viru_df_fish_test), 
+                      value = TRUE)
+outgroup_species <- "Saccharomyces_cerevisiae_wine010"
+
+a <- sum(vir_binary[, pathogen_species])
+b <- length(pathogen_species) * nrow(vir_binary) - a
+
+c <- sum(vir_binary[, outgroup_species])
+d <- nrow(vir_binary) - c
+
+mat <- matrix(c(a, b, c, d), nrow = 2)
+ft <- fisher.test(mat)
+ft
+#not sig P = 0.83 
+
+enrich <- ifelse(ft$estimate > 1, "Group1 enriched", "Group2 enriched")
+
+# Adding results as a new row to the df
+fisher_results <- rbind(fisher_results, data.frame(
+  clade = "Patho Saccharomycetales vs S. cerevisiae",
+  group1 = "Candida spp., Pichia, Nakaseomyces",
+  group2 = "S. cerevisiae",
+  odds_ratio = as.numeric(ft$estimate),
+  ci_lower = ft$conf.int[1],
+  ci_upper = ft$conf.int[2],
+  p_value = ft$p.value,
+  enrichment = enrich,
+  stringsAsFactors = FALSE
+))
+
+```
+
+Candida albicans vs. rest of Candida 
+```{r}
+pathogen_species <- grep("^(Candida_a)", 
+                      colnames(viru_df_fish_test), 
+                      value = TRUE)
+
+outgroup_species <- grep("^(Candida_m|Candida_o|Candida_p|Candida_d|Candida_t)", 
+                      colnames(viru_df_fish_test), 
+                      value = TRUE)
+
+a <- sum(vir_binary[, pathogen_species])
+b <- length(pathogen_species) * nrow(vir_binary) - a
+
+c <- sum(vir_binary[, outgroup_species])
+d <- length(outgroup_species) * nrow(vir_binary) - c
+
+mat <- matrix(c(a, b, c, d), nrow = 2)
+ft <- fisher.test(mat)
+ft
+#not sig P = 0.334 
+
+enrich <- ifelse(ft$estimate > 1, "Group1 enriched", "Group2 enriched")
+
+# Adding results as a new row to the df
+fisher_results <- rbind(fisher_results, data.frame(
+  clade = "C.albicans vs. other Candida spp.",
+  group1 = "C. albicans",
+  group2 = "other Candida spp.",
+  odds_ratio = as.numeric(ft$estimate),
+  ci_lower = ft$conf.int[1],
+  ci_upper = ft$conf.int[2],
+  p_value = ft$p.value,
+  enrichment = enrich,
+  stringsAsFactors = FALSE
+))
+
+```
+
+
+Dermatophytes
+```{r}
+pathogen_species <- grep("^(Trichop|Epi|Nann|Micro)", 
+                      colnames(viru_df_fish_test), 
+                      value = TRUE)
+outgroup_species <- "Chrysosporium_queenslandicum_28077"
+
+a <- sum(vir_binary[, pathogen_species])
+b <- length(pathogen_species) * nrow(vir_binary) - a
+
+c <- sum(vir_binary[, outgroup_species])
+d <- nrow(vir_binary) - c
+
+mat <- matrix(c(a, b, c, d), nrow = 2)
+ft <- fisher.test(mat)
+ft
+#not sig P = 0.2031
+
+enrich <- ifelse(ft$estimate > 1, "Group1 enriched", "Group2 enriched")
+
+# Adding results as a new row to the df
+fisher_results <- rbind(fisher_results, data.frame(
+  clade = "Dermatophytes vs. C. queenslandicum",
+  group1 = "Dermatophytes",
+  group2 = "C. queenslandicum",
+  odds_ratio = as.numeric(ft$estimate),
+  ci_lower = ft$conf.int[1],
+  ci_upper = ft$conf.int[2],
+  p_value = ft$p.value,
+  enrichment = enrich,
+  stringsAsFactors = FALSE
+))
+
+```
+
+M. canis vs. other Microsporum spp.
+```{r}
+pathogen_species <- grep("^(Microsporum_c)", 
+                      colnames(viru_df_fish_test), 
+                      value = TRUE)
+
+outgroup_species <- grep("^(Microsporum_f|Microsporum_a)", 
+                      colnames(viru_df_fish_test), 
+                      value = TRUE)
+
+a <- sum(vir_binary[, pathogen_species])
+b <- length(pathogen_species) * nrow(vir_binary) - a
+
+c <- sum(vir_binary[, outgroup_species])
+d <- length(outgroup_species) * nrow(vir_binary) - c
+
+mat <- matrix(c(a, b, c, d), nrow = 2)
+ft <- fisher.test(mat)
+ft
+
+#not sig P = 0.883
+
+enrich <- ifelse(ft$estimate > 1, "Group1 enriched", "Group2 enriched")
+
+# Adding results as a new row to the df
+fisher_results <- rbind(fisher_results, data.frame(
+  clade = "M. canis vs. other Microsporum spp.",
+  group1 = "M. canis",
+  group2 = "Other Microsporum spp.",
+  odds_ratio = as.numeric(ft$estimate),
+  ci_lower = ft$conf.int[1],
+  ci_upper = ft$conf.int[2],
+  p_value = ft$p.value,
+  enrichment = enrich,
+  stringsAsFactors = FALSE
+))
+```
+
+
+T. indotineae vs. T. mentagrophytes & T. interdigitale
+```{r}
+pathogen_species <- grep("^(Trichophyton_ind)", 
+                      colnames(viru_df_fish_test), 
+                      value = TRUE)
+
+outgroup_species <- grep("^(Trichophyton_m|Trichophyton_int)", 
+                      colnames(viru_df_fish_test), 
+                      value = TRUE)
+
+a <- sum(vir_binary[, pathogen_species])
+b <- length(pathogen_species) * nrow(vir_binary) - a
+
+c <- sum(vir_binary[, outgroup_species])
+d <- length(outgroup_species) * nrow(vir_binary) - c
+
+mat <- matrix(c(a, b, c, d), nrow = 2)
+ft <- fisher.test(mat)
+ft
+
+#not sig P = 0.911
+
+enrich <- ifelse(ft$estimate > 1, "Group1 enriched", "Group2 enriched")
+
+# Adding results as a new row to the df
+fisher_results <- rbind(fisher_results, data.frame(
+  clade = "T. indotineae vs. T. ment & T. inter",
+  group1 = "T. indotineae",
+  group2 = "T. mentagrophytes & T. interdigitale",
+  odds_ratio = as.numeric(ft$estimate),
+  ci_lower = ft$conf.int[1],
+  ci_upper = ft$conf.int[2],
+  p_value = ft$p.value,
+  enrichment = enrich,
+  stringsAsFactors = FALSE
+))
+```
+
+Save to file
+```{r}
+#write.csv(fisher_results, "../generated/viru_fishers_results.csv")
+```
+
 
