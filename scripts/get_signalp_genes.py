@@ -8,17 +8,17 @@ output_dir = Path("../generated")
 
 collected_records = []
 
-# Make a list of all gene IDs that are predicted to have signal peptides"
+# Make a list of all gene IDs that are predicted to have signal peptides
 
 for sample in signalp_folder.iterdir():
     sigp_file  = sample / "prediction_results.txt"
     if not sigp_file.exists():
-        print(f"⚠️ No SignalP results found for {sample.name}")
+        print(f"No SignalP results found for {sample.name}")
         continue
 
     fasta_candidates = list(gene_set_folder.glob(f"{sample.name}.*fa*"))
     if not fasta_candidates:
-        print(f"⚠️ No FASTA found for {sample.name}") 
+        print(f"No FASTA found for {sample.name}") 
         continue
     fasta_file = fasta_candidates[0]  # take the first match
 
