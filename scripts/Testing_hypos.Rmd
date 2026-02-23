@@ -446,7 +446,7 @@ collapsed_df <- test_cur %>%
   mutate(desc_collapse = str_trim(tolower(desc_collapse))) %>%
   group_by(desc_collapse) %>%
   summarise(OG = paste(unique(OG), collapse = "; "),
-            category = first(category),
+            category = dplyr::first(category),
             number_of_species = max(number_of_species, na.rm = TRUE),
             total_genec = sum(total_genec, na.rm = TRUE),
             number_of_genera = max(number_of_genera, na.rm = TRUE),
@@ -624,6 +624,7 @@ head(lst_carb$`sugar metabolism`)
 Save individual pairwise pr. annotation as one long table 
 ```{r}
 long_carb <- bind_rows(lst_carb, .id = "annotation")
+long_carb$sig <- long_carb$p.value < 0.05
 #write.csv(long_carb, "../generated/secr_carb_pw.csv", row.names = FALSE)
 rm(long_carb, lst_carb)
 ```
@@ -1004,6 +1005,77 @@ fisher_results <- rbind(fisher_results, data.frame(
 
 ```
 
+
+Dermatophytes
+```{r}
+pathogen_species <- grep("^(Trichop|Epi|Nann|Micro)", 
+                      colnames(viru_df_fish_test), 
+                      value = TRUE)
+outgroup_species <- "Chrysosporium_queenslandicum_28077"
+
+a <- sum(vir_binary[, pathogen_species])
+b <- length(pathogen_species) * nrow(vir_binary) - a
+
+c <- sum(vir_binary[, outgroup_species])
+d <- nrow(vir_binary) - c
+
+mat <- matrix(c(a, b, c, d), nrow = 2)
+ft <- fisher.test(mat)
+ft
+#not sig P = 0.2031
+
+enrich <- ifelse(ft$estimate > 1, "Group1 enriched", "Group2 enriched")
+
+# Adding results as a new row to the df
+fisher_results <- rbind(fisher_results, data.frame(
+  clade = "Dermatophytes vs. C. queenslandicum",
+  group1 = "Dermatophytes",
+  group2 = "C. queenslandicum",
+  odds_ratio = as.numeric(ft$estimate),
+  ci_lower = ft$conf.int[1],
+  ci_upper = ft$conf.int[2],
+  p_value = ft$p.value,
+  enrichment = enrich,
+  stringsAsFactors = FALSE
+))
+
+```
+
+```{r}
+pathogen_species <- grep("^(Hort)", 
+                      colnames(viru_df_fish_test), 
+                      value = TRUE)
+outgroup_species <- "Chrysosporium_queenslandicum_28077"
+
+a <- sum(vir_binary[, pathogen_species])
+b <- length(pathogen_species) * nrow(vir_binary) - a
+
+c <- sum(vir_binary[, outgroup_species])
+d <- nrow(vir_binary) - c
+
+mat <- matrix(c(a, b, c, d), nrow = 2)
+ft <- fisher.test(mat)
+ft
+#not sig P = 0.2031
+
+enrich <- ifelse(ft$estimate > 1, "Group1 enriched", "Group2 enriched")
+
+# Adding results as a new row to the df
+fisher_results <- rbind(fisher_results, data.frame(
+  clade = "Hortaea werneckii vs. C. queenslandicum",
+  group1 = "H. werneckii",
+  group2 = "C. queenslandicum",
+  odds_ratio = as.numeric(ft$estimate),
+  ci_lower = ft$conf.int[1],
+  ci_upper = ft$conf.int[2],
+  p_value = ft$p.value,
+  enrichment = enrich,
+  stringsAsFactors = FALSE
+))
+```
+
+### potential: species within same genus, which are potentially differently virulent
+
 Candida albicans vs. rest of Candida 
 ```{r}
 pathogen_species <- grep("^(Candida_a)", 
@@ -1043,40 +1115,6 @@ fisher_results <- rbind(fisher_results, data.frame(
 ```
 
 
-Dermatophytes
-```{r}
-pathogen_species <- grep("^(Trichop|Epi|Nann|Micro)", 
-                      colnames(viru_df_fish_test), 
-                      value = TRUE)
-outgroup_species <- "Chrysosporium_queenslandicum_28077"
-
-a <- sum(vir_binary[, pathogen_species])
-b <- length(pathogen_species) * nrow(vir_binary) - a
-
-c <- sum(vir_binary[, outgroup_species])
-d <- nrow(vir_binary) - c
-
-mat <- matrix(c(a, b, c, d), nrow = 2)
-ft <- fisher.test(mat)
-ft
-#not sig P = 0.2031
-
-enrich <- ifelse(ft$estimate > 1, "Group1 enriched", "Group2 enriched")
-
-# Adding results as a new row to the df
-fisher_results <- rbind(fisher_results, data.frame(
-  clade = "Dermatophytes vs. C. queenslandicum",
-  group1 = "Dermatophytes",
-  group2 = "C. queenslandicum",
-  odds_ratio = as.numeric(ft$estimate),
-  ci_lower = ft$conf.int[1],
-  ci_upper = ft$conf.int[2],
-  p_value = ft$p.value,
-  enrichment = enrich,
-  stringsAsFactors = FALSE
-))
-
-```
 
 M. canis vs. other Microsporum spp.
 ```{r}
