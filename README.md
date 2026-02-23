@@ -82,4 +82,4 @@ The analysis includes 66 isolates from 38 species across major clinical fungal l
 - [IQtree3](https://iqtree.github.io) - Phylogenomic inference
 
 
-// Sofie Agerbaek - soage@regionsjaelland.dk
+// Sofie Agerbaek - soage@regionsjaelland.dk / sofie.agerbaek@gmail.com
